@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=BenchNine:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,900;1,900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom font classes */
+.font-logo {
+  font-family: 'Inconsolata', monospace;
+}
+
+.font-body {
+  font-family: 'BenchNine', sans-serif;
+}
+
+.font-heading {
+  font-family: 'Roboto', sans-serif;
+}
