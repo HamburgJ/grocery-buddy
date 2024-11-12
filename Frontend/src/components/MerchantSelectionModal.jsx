@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useMerchants } from '../contexts/MerchantContext';
 import { env } from '../config/environment';
 export const MerchantSelectionModal = ({ onComplete }) => {

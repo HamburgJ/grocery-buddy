@@ -1,8 +1,13 @@
+const environment = process.env.NODE_ENV || 'development';
+console.log('Environment:', environment);
+console.log('MongoDB URI:', process.env.MONGODB_URI);
+console.log('CORS Origins:', process.env.CORS_ORIGINS);
+
 const config = {
   development: {
-    PORT: process.env.PORT || 3000,
+    PORT: process.env.PORT || 3001,
     MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/grocery-dev',
-    CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    CORS_ORIGINS: process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:3000'],
     LOG_LEVEL: 'debug'
   },
   test: {
@@ -12,12 +17,13 @@ const config = {
     LOG_LEVEL: 'error'
   },
   production: {
-    PORT: process.env.PORT,
+    PORT: process.env.PORT || 3001,
     MONGODB_URI: process.env.MONGODB_URI,
-    CORS_ORIGIN: process.env.CORS_ORIGIN,
+    CORS_ORIGINS: process.env.CORS_ORIGINS ? 
+      process.env.CORS_ORIGINS.split(',') : 
+      ['https://your-frontend-domain.com'],
     LOG_LEVEL: 'error'
   }
 };
 
-const environment = process.env.NODE_ENV || 'development';
 module.exports = config[environment]; 

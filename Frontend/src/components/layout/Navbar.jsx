@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search as SearchIcon, Heart, Tag, Home } from 'lucide-react';
+import { Search as SearchIcon, Heart, Tag, Home, ShoppingBasket } from 'lucide-react';
 import { useFavorites } from '../../contexts/FavoritesContext';
 
 export const Navbar = () => {
@@ -24,6 +24,11 @@ export const Navbar = () => {
               to="/favorites" 
               icon={<Heart size={20} />} 
               label={`Favorites (${favorites.length})`} 
+            />
+            <NavLink 
+              to="/staples" 
+              icon={<ShoppingBasket size={20} />} 
+              label="Staples" 
             />
           </div>
         </div>

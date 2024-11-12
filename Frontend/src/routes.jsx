@@ -4,6 +4,7 @@ import Deals from './pages/Deals';
 import Search from './pages/Search';
 import Favorites from './pages/Favorites';
 import { RequireMerchantSelection } from './components/RequireMerchantSelection';
+import GroceryStaples from './pages/GroceryStaples';
 
 const AppRoutes = () => (
   <Routes>
@@ -21,6 +22,11 @@ const AppRoutes = () => (
     <Route path="/favorites" element={
       <RequireMerchantSelection>
         <Favorites />
+      </RequireMerchantSelection>
+    } />
+    <Route path="/staples" element={
+      <RequireMerchantSelection>
+        <GroceryStaples />
       </RequireMerchantSelection>
     } />
   </Routes>

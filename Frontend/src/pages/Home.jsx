@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Search as SearchIcon, Tag, Heart } from 'lucide-react';
+import { Search as SearchIcon, Tag, Heart, ShoppingBasket } from 'lucide-react';
 
 const Home = () => {
   return (
@@ -38,6 +38,13 @@ const Home = () => {
       >
         Explore Deals
       </Link>
+      
+      <FeatureCard
+        icon={<ShoppingBasket className="w-8 h-8" />}
+        title="Essential Staples"
+        description="Track prices of the top 10 grocery staples in Canada."
+        link="/staples"
+      />
     </div>
   );
 };

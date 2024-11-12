@@ -1,9 +1,8 @@
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const config = require('./config');
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
 const flyerRoutes = require('./routes/flyerRoutes');
 const merchantRoutes = require('./routes/merchantRoutes');
@@ -17,20 +16,21 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: config.CORS_ORIGIN,
+  origin: process.env.CORS_ORIGINS ? 
+    process.env.CORS_ORIGINS.split(',') : 
+    [config.CORS_ORIGIN],
   credentials: true
 }));
 app.use(express.json());
 
 // Database connection
-mongoose.connect(config.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
+mongoose.connect(config.MONGODB_URI)
+  .then(() => {
     console.log('Connected to MongoDB');
-}).catch((error) => {
+  })
+  .catch((error) => {
     console.error('MongoDB connection error:', error);
-});
+  });
 
 // Routes
 app.use('/api/flyers', flyerRoutes);

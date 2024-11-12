@@ -1,11 +1,11 @@
 const environments = {
   development: {
-    API_URL: 'http://localhost:3000',
+    API_URL: 'http://localhost:3001',
     GEOCODING_API_URL: '/api/geocode',
     ENABLE_DEBUG: true
   },
   test: {
-    API_URL: 'http://localhost:3000',
+    API_URL: 'http://localhost:3001',
     GEOCODING_API_URL: '/api/geocode',
     ENABLE_DEBUG: true
   },

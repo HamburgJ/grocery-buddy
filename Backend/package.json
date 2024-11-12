@@ -1,9 +1,9 @@
 {
   "scripts": {
     "start": "node src/app.js",
-    "dev": "NODE_ENV=development nodemon src/app.js",
-    "test": "NODE_ENV=test jest",
-    "start:prod": "NODE_ENV=production node src/app.js"
+    "dev": "cross-env NODE_ENV=development nodemon src/app.js",
+    "test": "cross-env NODE_ENV=test jest",
+    "start:prod": "cross-env NODE_ENV=production node src/app.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -12,6 +12,7 @@
     "mongoose": "^8.7.3"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "nodemon": "^2.0.15",
     "jest": "^27.4.7"
   }

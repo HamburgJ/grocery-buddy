@@ -57,17 +57,21 @@ export const ItemView = ({ item, category, onClose }) => {
                 <p className="text-red-600 mb-4">{item.sale_story}</p>
               )}
               
-              <div className="border-t pt-4">
-                <h4 className="font-semibold mb-2">Merchant Information</h4>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={item.merchant.logo_url}
-                    alt={item.merchant.name}
-                    className="w-6 h-6 object-contain"
-                  />
-                  <span>{item.merchant.name}</span>
+              {item.merchant && (
+                <div className="border-t pt-4">
+                  <h4 className="font-semibold mb-2">Merchant Information</h4>
+                  <div className="flex items-center gap-2">
+                    {item.merchant.logo_url && (
+                      <img
+                        src={item.merchant.logo_url}
+                        alt={item.merchant.name || 'Merchant'}
+                        className="w-6 h-6 object-contain"
+                      />
+                    )}
+                    <span>{item.merchant.name || 'Unknown Merchant'}</span>
+                  </div>
                 </div>
-              </div>
+              )}
               
               <div className="border-t pt-4 mt-4">
                 <h4 className="font-semibold mb-2">Category</h4>

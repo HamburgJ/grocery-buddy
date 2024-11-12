@@ -1,0 +1,15 @@
+{
+    "name": "grocery-buddy",
+    "private": true,
+    "scripts": {
+      "backend:dev": "cd Backend && npm run dev",
+      "backend:start": "cd Backend && npm run start",
+      "frontend:dev": "cd Frontend && npm start",
+      "frontend:build": "cd Frontend && npm run build",
+      "data:test": "cd 'Data Collection' && python -m pytest",
+      "start:dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\""
+    },
+    "devDependencies": {
+      "concurrently": "^8.2.0"
+    }
+  }

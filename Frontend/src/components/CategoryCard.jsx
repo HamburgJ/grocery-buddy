@@ -6,6 +6,7 @@ import { ItemView } from './ItemView';
 export const CategoryCard = ({ category }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ field: 'price', direction: 'asc' });
   const { favorites, toggleFavorite } = useFavorites();
   const isFavorite = favorites.includes(category._id);
 
@@ -36,6 +37,14 @@ export const CategoryCard = ({ category }) => {
       document.removeEventListener('keydown', handleEscape);
     };
   }, [isModalOpen]);
+
+  const sortItems = (items) => {
+    return [...items].sort((a, b) => {
+      const aValue = a.originalItem[sortConfig.field];
+      const bValue = b.originalItem[sortConfig.field];
+      return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+    });
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative h-80">
@@ -137,12 +146,27 @@ export const CategoryCard = ({ category }) => {
           <div className="bg-white rounded-lg w-full max-w-4xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="p-4 border-b flex justify-between items-center bg-white">
               <h3 className="text-xl font-semibold">{category.name}</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1 hover:bg-gray-100 rounded-full"
-              >
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                <select
+                  value={`${sortConfig.field}-${sortConfig.direction}`}
+                  onChange={(e) => {
+                    const [field, direction] = e.target.value.split('-');
+                    setSortConfig({ field, direction });
+                  }}
+                  className="text-sm border rounded-md px-2 py-1"
+                >
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="current_price-asc">Current Price: Low to High</option>
+                  <option value="current_price-desc">Current Price: High to Low</option>
+                </select>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-1 hover:bg-gray-100 rounded-full"
+                >
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             
             <div className="flex-1 overflow-y-auto">
@@ -156,34 +180,34 @@ export const CategoryCard = ({ category }) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {items.map(item => (
+                  {sortItems(items).map(item => (
                     <tr 
                       key={item.item_id}
-                      onClick={() => setSelectedItem(item)}
+                      onClick={() => setSelectedItem(item.originalItem)}
                       className="hover:bg-gray-50 cursor-pointer"
                     >
                       <td className="px-2 py-2">
                         <img
-                          src={item.cutout_image_url}
-                          alt={item.name}
+                          src={item.originalItem.cutout_image_url}
+                          alt={item.originalItem.name}
                           className="w-10 h-10 object-contain cursor-zoom-in"
                           onClick={(e) => handleImageClick(e, item)}
                         />
                       </td>
                       <td className="px-2 py-2">
-                        <p className="font-medium text-sm text-gray-900">{item.name}</p>
-                        {item.description && (
-                          <p className="text-xs text-gray-500">{item.description}</p>
+                        <p className="font-medium text-sm text-gray-900">{item.originalItem.name}</p>
+                        {item.originalItem.description && (
+                          <p className="text-xs text-gray-500">{item.originalItem.description}</p>
                         )}
-                        {item.brand && (
-                          <p className="text-xs text-gray-400 mt-1">{item.brand}</p>
+                        {item.originalItem.brand && (
+                          <p className="text-xs text-gray-400 mt-1">{item.originalItem.brand}</p>
                         )}
                       </td>
                       <td className="p-3">
                         <p className="font-medium text-gray-900">
-                          {item.originalItem.current_price}
+                          ${item.originalItem.current_price}
                         </p>
-                        {item.originalItem.price !== item.originalItem.price && (
+                        {item.originalItem.price !== item.originalItem.current_price && (
                           <p className="text-sm text-gray-500 line-through">
                             ${item.originalItem.price.toFixed(2)}
                           </p>
