@@ -18,11 +18,15 @@ jobs:
       with:
         node-version: '18.x'
         
+    - name: Install Dependencies
+      run: |
+        cd Backend
+        npm install
+        
     - name: Prepare deployment
       run: |
         mkdir -p Backend/deploy
         cp Backend/package*.json Backend/deploy/
-        cp Backend/app.js Backend/deploy/
         cp Backend/startup.sh Backend/deploy/
         chmod +x Backend/deploy/startup.sh
         cp -r Backend/src Backend/deploy/
