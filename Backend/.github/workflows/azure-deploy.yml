@@ -20,21 +20,8 @@ jobs:
         
     - name: Prepare deployment
       run: |
-        # Create deployment directory
-        mkdir -p Backend/deploy
-        
-        # Copy application files
-        cp Backend/package*.json Backend/deploy/
-        cp -r Backend/src Backend/deploy/
-        
-        # Create the startup script in the correct location
-        mkdir -p Backend/deploy/startup
-        echo "#!/bin/sh
-        cd /home/site/wwwroot
-        npm install --production
-        node src/app.js" > Backend/deploy/startup/startup.sh
-        
-        chmod +x Backend/deploy/startup/startup.sh
+        npm install
+        npm run backend:start
         
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
