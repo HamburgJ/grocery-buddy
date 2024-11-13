@@ -18,26 +18,18 @@ jobs:
       with:
         node-version: '18.x'
         
-    - name: Install Dependencies
-      run: |
-        cd Backend
-        npm install
-        
     - name: Prepare deployment
       run: |
         mkdir -p Backend/deploy
         cp Backend/package*.json Backend/deploy/
-        cp Backend/startup.sh Backend/deploy/
-        chmod +x Backend/deploy/startup.sh
-        mkdir -p Backend/deploy/src
-        cp -r Backend/src/* Backend/deploy/src/
+        cp -r Backend/src Backend/deploy/
         cp Backend/.env* Backend/deploy/ || true
         
-    - name: Verify deployment structure
-      run: |
-        ls -la Backend/deploy
-        ls -la Backend/deploy/src
-    
+        # Handle startup script properly
+        cp Backend/startup.sh Backend/deploy/
+        sed -i 's/\r$//' Backend/deploy/startup.sh
+        chmod +x Backend/deploy/startup.sh
+        
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
       with:
