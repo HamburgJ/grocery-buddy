@@ -27,7 +27,13 @@ jobs:
       run: |
         cd Backend
         mkdir -p deploy
-        cp -r src package.json package-lock.json deploy/
+        cp -r src package.json package-lock.json .env* deploy/
+        
+    - name: Create startup command file
+      run: |
+        cd Backend/deploy
+        echo "cd /home/site/wwwroot && npm install && PORT=8080 node src/app.js" > startup.sh
+        chmod +x startup.sh
         
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
