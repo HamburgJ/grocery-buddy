@@ -29,8 +29,14 @@ jobs:
         cp Backend/package*.json Backend/deploy/
         cp Backend/startup.sh Backend/deploy/
         chmod +x Backend/deploy/startup.sh
-        cp -r Backend/src Backend/deploy/
+        mkdir -p Backend/deploy/src
+        cp -r Backend/src/* Backend/deploy/src/
         cp Backend/.env* Backend/deploy/ || true
+        
+    - name: Verify deployment structure
+      run: |
+        ls -la Backend/deploy
+        ls -la Backend/deploy/src
     
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
