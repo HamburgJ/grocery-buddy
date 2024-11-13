@@ -41,6 +41,23 @@ app.use('/api/scrapers', scraperRoutes);
 app.use('/api/itemCategorizations', itemCategorizationRoutes);
 app.use('/api/canonicalCategories', canonicalCategoryRoutes);
 
+// Add after your other routes
+app.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Grocery Buddy API is running',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Add a health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
 const PORT = config.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
