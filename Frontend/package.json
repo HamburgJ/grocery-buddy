@@ -2,6 +2,7 @@
   "name": "deal-finder",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://yourusername.github.io/grocery-buddy",
   "dependencies": {
     "lucide-react": "^0.330.0",
     "react": "^18.2.0",
@@ -16,6 +17,7 @@
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "gh-pages": "^6.1.1",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1"
   },
@@ -23,24 +25,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
     "eject": "react-scripts eject",
-    "start:prod": "NODE_ENV=production react-scripts start"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   }
 }

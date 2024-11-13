@@ -1,0 +1,37 @@
+name: Deploy Frontend to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Frontend/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install Dependencies
+        run: |
+          cd Frontend
+          npm install
+
+      - name: Build
+        run: |
+          cd Frontend
+          npm run build
+        env:
+          REACT_APP_API_URL: 'https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net'
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: Frontend/build
+          branch: gh-pages 
