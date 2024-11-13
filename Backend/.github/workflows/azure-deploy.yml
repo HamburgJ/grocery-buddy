@@ -16,18 +16,22 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '18.x'
+        node-version: '20.x'
         
     - name: Prepare deployment
       run: |
         mkdir -p Backend/deploy
         cp Backend/package*.json Backend/deploy/
         cp -r Backend/src Backend/deploy/
-        cp Backend/.env* Backend/deploy/ || true
         
-        # Handle startup script properly
-        cp Backend/startup.sh Backend/deploy/
-        sed -i 's/\r$//' Backend/deploy/startup.sh
+        # Create and configure startup script directly
+        echo '#!/bin/sh
+        cd /home/site/wwwroot
+        export PORT=8080
+        export NODE_ENV=production
+        npm install --production
+        node src/app.js' > Backend/deploy/startup.sh
+        
         chmod +x Backend/deploy/startup.sh
         
     - name: Deploy to Azure
