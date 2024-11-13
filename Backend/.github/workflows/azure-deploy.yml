@@ -24,20 +24,32 @@ jobs:
         cp Backend/package*.json Backend/deploy/
         cp -r Backend/src Backend/deploy/
         
-        # Create startup script with Unix line endings
+        # Create startup script with debug logging
         cat > Backend/deploy/startup.sh << 'EOL'
 #!/bin/sh
+echo "Starting deployment script..."
+pwd
+ls -la
+
 cd /home/site/wwwroot
+echo "Changed to wwwroot directory"
+pwd
+ls -la
+
+echo "Installing dependencies..."
 npm install --production
+
+echo "Starting application..."
 node src/app.js
 EOL
         
-        # Ensure correct permissions and line endings
-        chmod +x Backend/deploy/startup.sh
-        dos2unix Backend/deploy/startup.sh || true
+        # Set permissions
+        chmod 755 Backend/deploy/startup.sh
         
-        # Verify deployment structure
+        # Verify deployment
+        echo "Deployment contents:"
         ls -la Backend/deploy
+        echo "Startup script contents:"
         cat Backend/deploy/startup.sh
         
     - name: Deploy to Azure

@@ -64,3 +64,13 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+
+// Add at the beginning of the file
+console.log('Starting application...');
+console.log('Current directory:', process.cwd());
+console.log('Environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  MONGODB_URI: process.env.MONGODB_URI ? '[REDACTED]' : 'not set',
+  CORS_ORIGINS: process.env.CORS_ORIGINS
+});
