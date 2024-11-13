@@ -24,15 +24,21 @@ jobs:
         cp Backend/package*.json Backend/deploy/
         cp -r Backend/src Backend/deploy/
         
-        # Create and configure startup script directly
-        echo '#!/bin/sh
-        cd /home/site/wwwroot
-        export PORT=8080
-        export NODE_ENV=production
-        npm install --production
-        node src/app.js' > Backend/deploy/startup.sh
+        # Create startup script with Unix line endings
+        cat > Backend/deploy/startup.sh << 'EOL'
+#!/bin/sh
+cd /home/site/wwwroot
+npm install --production
+node src/app.js
+EOL
         
+        # Ensure correct permissions and line endings
         chmod +x Backend/deploy/startup.sh
+        dos2unix Backend/deploy/startup.sh || true
+        
+        # Verify deployment structure
+        ls -la Backend/deploy
+        cat Backend/deploy/startup.sh
         
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
