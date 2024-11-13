@@ -18,23 +18,16 @@ jobs:
       with:
         node-version: '18.x'
         
-    - name: Install Dependencies
+    - name: Prepare deployment
       run: |
-        cd Backend
-        npm install
-        
-    - name: Prepare for deployment
-      run: |
-        cd Backend
-        mkdir -p deploy
-        cp -r src package.json package-lock.json .env* deploy/
-        
-    - name: Create startup command file
-      run: |
-        cd Backend/deploy
-        echo "cd /home/site/wwwroot && npm install && PORT=8080 node src/app.js" > startup.sh
-        chmod +x startup.sh
-        
+        mkdir -p Backend/deploy
+        cp Backend/package*.json Backend/deploy/
+        cp Backend/app.js Backend/deploy/
+        cp Backend/startup.sh Backend/deploy/
+        chmod +x Backend/deploy/startup.sh
+        cp -r Backend/src Backend/deploy/
+        cp Backend/.env* Backend/deploy/ || true
+    
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
       with:
