@@ -20,34 +20,30 @@ jobs:
         
     - name: Prepare deployment
       run: |
+        # Create deployment directory
         mkdir -p Backend/deploy
+        
+        # Copy application files
         cp Backend/package*.json Backend/deploy/
-        cp -r Backend/src Backend/deploy/
+        cp -r Backend/src Backend/deploy/src
         
-        # Create startup script with debug logging
-        cat > Backend/deploy/startup.sh << 'EOL'
-#!/bin/sh
-echo "Starting deployment script..."
-pwd
-ls -la
-
-cd /home/site/wwwroot
-echo "Changed to wwwroot directory"
-pwd
-ls -la
-
-echo "Installing dependencies..."
-npm install --production
-
-echo "Starting application..."
-node src/app.js
-EOL
+        # Create startup command file
+        echo "#!/bin/sh
+        echo 'Current directory before:'
+        pwd
+        ls -la
         
-        # Set permissions
-        chmod 755 Backend/deploy/startup.sh
+        echo 'Installing dependencies...'
+        npm install --production
         
-        # Verify deployment
-        echo "Deployment contents:"
+        echo 'Starting application...'
+        node src/app.js" > Backend/deploy/startup.sh
+        
+        # Set correct permissions
+        chmod +x Backend/deploy/startup.sh
+        
+        # Debug output
+        echo "Final deployment structure:"
         ls -la Backend/deploy
         echo "Startup script contents:"
         cat Backend/deploy/startup.sh
