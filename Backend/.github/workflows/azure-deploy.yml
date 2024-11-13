@@ -25,28 +25,16 @@ jobs:
         
         # Copy application files
         cp Backend/package*.json Backend/deploy/
-        cp -r Backend/src Backend/deploy/src
+        cp -r Backend/src Backend/deploy/
         
-        # Create startup command file
+        # Create the startup script in the correct location
+        mkdir -p Backend/deploy/startup
         echo "#!/bin/sh
-        echo 'Current directory before:'
-        pwd
-        ls -la
-        
-        echo 'Installing dependencies...'
+        cd /home/site/wwwroot
         npm install --production
+        node src/app.js" > Backend/deploy/startup/startup.sh
         
-        echo 'Starting application...'
-        node src/app.js" > Backend/deploy/startup.sh
-        
-        # Set correct permissions
-        chmod +x Backend/deploy/startup.sh
-        
-        # Debug output
-        echo "Final deployment structure:"
-        ls -la Backend/deploy
-        echo "Startup script contents:"
-        cat Backend/deploy/startup.sh
+        chmod +x Backend/deploy/startup/startup.sh
         
     - name: Deploy to Azure
       uses: azure/webapps-deploy@v2
