@@ -9,10 +9,13 @@ exports.getCanonicalCategories = async (req, res) => {
       console.log('Getting canonical categories');
       
       const VALID_CATEGORIES = ['Pantry', 'Deli', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen'];
+      const DEFAULT_LIMIT = 15;
+      const MAX_LIMIT = 100;
       
       const searchQuery = req.query.q;
       const skip = parseInt(req.query.skip) || 0;
-      const limit = parseInt(req.query.limit) || 100;
+      const requestedLimit = parseInt(req.query.limit) || DEFAULT_LIMIT;
+      const limit = Math.min(requestedLimit, MAX_LIMIT);
       const sortBy = req.query.sortBy || 'interest';
       const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
       
@@ -104,7 +107,10 @@ exports.getCanonicalCategories = async (req, res) => {
                         category: 1,
                         sale_story: 1,
                         brand: 1,
-                        cutout_image_url: 1
+                        cutout_image_url: 1,
+                        discount: 1,
+                        valid_from: 1,
+                        valid_to: 1
                       }
                     },
                     {
@@ -270,6 +276,7 @@ exports.getCanonicalCategories = async (req, res) => {
           pagination: {
             currentPage: Math.floor(skip / limit) + 1,
             itemsPerPage: limit,
+            totalPages: Math.ceil((result[0].metadata[0]?.totalCount || 0) / limit),
             hasMore: (result[0].metadata[0]?.totalCount || 0) > (skip + limit)
           },
           validCategories: VALID_CATEGORIES
@@ -291,14 +298,24 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
         const ids = req.query.ids ? 
             req.query.ids.split(',').map(id => id.trim()) : 
             [];
-        
+            
+        if (ids.length === 0) {
+            return res.status(400).json({ error: 'No IDs provided' });
+        }
+
+        // Validate ObjectId format
+        const validObjectIds = ids.filter(id => mongoose.Types.ObjectId.isValid(id))
+                                .map(id => new mongoose.Types.ObjectId(id));
+
+        if (validObjectIds.length === 0) {
+            return res.status(400).json({ error: 'No valid ObjectIds provided' });
+        }
+
         // Base pipeline for both data and metadata
-        const basePipeline =
-        [
-            // Filter by provided IDs
+        const basePipeline = [
             {
                 $match: {
-                    _id: { $in: ids.map(id => new mongoose.Types.ObjectId(id)) }
+                    _id: { $in: validObjectIds }
                 }
             },
             
@@ -361,7 +378,10 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
                                             category: 1,
                                             sale_story: 1,
                                             brand: 1,
-                                            cutout_image_url: 1
+                                            cutout_image_url: 1,
+                                            discount: 1,
+                                            valid_from: 1,
+                                            valid_to: 1
                                         }
                                     },
                                     {
@@ -418,44 +438,43 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
 
         const result = await CanonicalCategory.aggregate([
             {
-            $facet: {
-                metadata: [
-                ...basePipeline,
-                {
-                    $group: {
-                    _id: null,
-                    totalCount: { $sum: 1 },
-                    totalItems: { $sum: { $size: '$canonicalItems' } },
-                    avgItemsPerCategory: { $avg: { $size: '$canonicalItems' } }
-                    }
+                $facet: {
+                    metadata: [
+                        ...basePipeline,
+                        {
+                            $group: {
+                                _id: null,
+                                totalCount: { $sum: 1 },
+                                totalItems: { $sum: { $size: '$canonicalItems' } },
+                                avgItemsPerCategory: { $avg: { $size: '$canonicalItems' } }
+                            }
+                        }
+                    ],
+                    data: basePipeline
                 }
-                ],
-                data: basePipeline
-            }
             }
         ]);
 
-        // Format the response
         const response = {
             metadata: {
-            ...(result[0].metadata[0] || {
-                totalCount: 0,
-                totalItems: 0,
-                avgItemsPerCategory: 0
-            }),
-            query: {
-                ids
-            }
+                ...(result[0].metadata[0] || {
+                    totalCount: 0,
+                    totalItems: 0,
+                    avgItemsPerCategory: 0
+                }),
+                query: {
+                    ids
+                }
             },
             data: result[0].data
         };
 
-        res.status(200).json(result[0].data);
-        } catch (error) {
+        res.status(200).json(response);
+    } catch (error) {
         console.error('Error fetching canonical categories by IDs:', error);
         res.status(500).json({ error: error.message });
-        }
-    };
+    }
+};
 
 exports.getCanonicalCategoryFeatured = async (req, res) => {
     // we just call getCanonicalCategories for now as a placeholder

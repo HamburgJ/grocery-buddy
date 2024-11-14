@@ -27,7 +27,7 @@ jobs:
           npm run build --if-present
           npm run test --if-present
         env:
-          CORS_ORIGINS: https://hamburgj.github.io,https://hamburgj.github.io/grocery-buddy,http://localhost:3000
+          CORS_ORIGINS: https://hamburgj.github.io,https://hamburgj.github.io/grocery-buddy,http://localhost:3000,http://localhost:5173
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r

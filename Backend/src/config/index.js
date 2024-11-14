@@ -21,7 +21,7 @@ const config = {
     MONGODB_URI: process.env.MONGODB_URI,
     CORS_ORIGINS: process.env.CORS_ORIGINS ? 
       process.env.CORS_ORIGINS.split(',') : 
-      ['https://hamburgj.github.io','https://hamburgj.github.io/grocery-buddy', 'http://localhost:3000'],
+      ['https://hamburgj.github.io','https://hamburgj.github.io/grocery-buddy', 'http://localhost:3000', 'http://localhost:5173'],
     LOG_LEVEL: 'error'
   }
 };

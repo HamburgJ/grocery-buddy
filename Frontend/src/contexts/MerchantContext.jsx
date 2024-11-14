@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { config } from '../config/index';
 
 const MerchantContext = createContext();
 
@@ -9,6 +10,25 @@ export const MerchantProvider = ({ children }) => {
     const saved = localStorage.getItem('selectedMerchants');
     return saved ? JSON.parse(saved) : null;
   });
+  const [merchants, setMerchants] = useState([]);
+
+  useEffect(() => {
+    const fetchMerchants = async () => {
+      try {
+        const response = await fetch(`${config.API_URL}/merchants/`);
+        const data = await response.json();
+        setMerchants(data);
+        if (!selectedMerchants) {
+          const merchantIds = data.map(merchant => merchant._id);
+          setSelectedMerchants(merchantIds);
+        }
+      } catch (error) {
+        console.error('Failed to fetch merchants', error);
+      }
+    };
+
+    fetchMerchants();
+  }, []);
 
   useEffect(() => {
     if (selectedMerchants) {
@@ -17,8 +37,12 @@ export const MerchantProvider = ({ children }) => {
   }, [selectedMerchants]);
 
   return (
-    <MerchantContext.Provider value={{ selectedMerchants, setSelectedMerchants }}>
+    <MerchantContext.Provider value={{ 
+      selectedMerchants, 
+      setSelectedMerchants,
+      merchants
+    }}>
       {children}
     </MerchantContext.Provider>
   );
-}; 
+};

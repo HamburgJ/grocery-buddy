@@ -11,10 +11,16 @@ export const CategoryCard = ({ category }) => {
   const isFavorite = favorites.includes(category._id);
 
   const items = category.canonicalItems;
-  const mainItem = items[0].originalItem;
-  const secondaryItems = items.map(item => item.originalItem);
   
-  // Use price field for sorting, but display current_price
+  // Sort items by price before getting mainItem and secondaryItems
+  const sortedItems = [...items].sort((a, b) => 
+    a.originalItem.price - b.originalItem.price
+  );
+  
+  const mainItem = sortedItems[0].originalItem;
+  const secondaryItems = sortedItems.map(item => item.originalItem);
+  
+  // Rest of the price calculations remain the same
   const sortedPrices = [...new Set(items.map(i => i.originalItem.price))].sort((a, b) => a - b);
   const bestPrice = sortedPrices[0];
   const worstPrice = sortedPrices[sortedPrices.length - 1];
@@ -145,7 +151,19 @@ export const CategoryCard = ({ category }) => {
         >
           <div className="bg-white rounded-lg w-full max-w-4xl h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="p-4 border-b flex justify-between items-center bg-white">
-              <h3 className="text-xl font-semibold">{category.name}</h3>
+              <div>
+                <h3 className="text-xl font-semibold">
+                  {category.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                </h3>
+                <div className="mt-1">
+                  <div className="inline-block bg-green-50 px-1.5 py-0.5 rounded">
+                    <span className="text-sm font-bold text-green-700">${bestDeals[0].current_price}</span>
+                    <span className="text-xs text-green-600 ml-1">
+                      at {bestDeals.map(d => d.merchant.name).join(' or ')}
+                    </span>
+                  </div>
+                </div>
+              </div>
               <div className="flex items-center gap-2">
                 <select
                   value={`${sortConfig.field}-${sortConfig.direction}`}
@@ -180,55 +198,71 @@ export const CategoryCard = ({ category }) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {sortItems(items).map(item => (
-                    <tr 
-                      key={item.item_id}
-                      onClick={() => setSelectedItem(item.originalItem)}
-                      className="hover:bg-gray-50 cursor-pointer"
-                    >
-                      <td className="px-2 py-2">
-                        <img
-                          src={item.originalItem.cutout_image_url}
-                          alt={item.originalItem.name}
-                          className="w-10 h-10 object-contain cursor-zoom-in"
-                          onClick={(e) => handleImageClick(e, item)}
-                        />
-                      </td>
-                      <td className="px-2 py-2">
-                        <p className="font-medium text-sm text-gray-900">{item.originalItem.name}</p>
-                        {item.originalItem.description && (
-                          <p className="text-xs text-gray-500">{item.originalItem.description}</p>
-                        )}
-                        {item.originalItem.brand && (
-                          <p className="text-xs text-gray-400 mt-1">{item.originalItem.brand}</p>
-                        )}
-                      </td>
-                      <td className="p-3">
-                        <p className="font-medium text-gray-900">
-                          ${item.originalItem.current_price}
-                        </p>
-                        {item.originalItem.price !== item.originalItem.current_price && (
-                          <p className="text-sm text-gray-500 line-through">
-                            ${item.originalItem.price.toFixed(2)}
+                  {sortItems(items).map(item => {
+                    const isLowestPrice = item.originalItem.current_price === bestPrice;
+                    return (
+                      <tr 
+                        key={item.item_id}
+                        onClick={() => setSelectedItem(item.originalItem)}
+                        className={`hover:bg-gray-50 cursor-pointer ${
+                          isLowestPrice ? 'bg-green-50' : ''
+                        }`}
+                      >
+                        <td className="px-2 py-2">
+                          <img
+                            src={item.originalItem.cutout_image_url}
+                            alt={item.originalItem.name}
+                            className="w-10 h-10 object-contain cursor-zoom-in"
+                          />
+                        </td>
+                        <td className="px-2 py-2">
+                          <p className={`font-medium text-sm ${
+                            isLowestPrice ? 'text-green-700' : 'text-gray-900'
+                          }`}>
+                            {item.originalItem.name}
                           </p>
-                        )}
-                      </td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-2">
-                          {item.originalItem.merchant && item.originalItem.merchant.logo_url && (
-                            <img
-                              src={item.originalItem.merchant.logo_url}
-                              alt={item.originalItem.merchant?.name || 'Merchant'}
-                              className="w-4 h-4 object-contain"
-                            />
+                          {item.originalItem.description && (
+                            <p className="text-xs text-gray-500">{item.originalItem.description}</p>
                           )}
-                          <span className="text-sm text-gray-600">
-                            {item.originalItem.merchant?.name || 'Unknown Merchant'}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                          {item.originalItem.brand && (
+                            <p className="text-xs text-gray-400">{item.originalItem.brand}</p>
+                          )}
+                          {item.originalItem.sale_story && (
+                            <p className="text-xs text-red-600 mt-1">{item.originalItem.sale_story}</p>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <p className={`font-medium ${
+                            isLowestPrice ? 'text-green-700' : 'text-gray-900'
+                          }`}>
+                            ${item.originalItem.current_price}
+                          </p>
+                          {item.originalItem.price !== item.originalItem.current_price && (
+                            <p className="text-sm text-gray-500 line-through">
+                              ${item.originalItem.price}
+                            </p>
+                          )}
+                          {item.originalItem.discount && (
+                            <p className="text-xs text-red-600">Save {item.originalItem.discount}%</p>
+                          )}
+                        </td>
+                        <td className="p-3">
+                          <div className="flex items-center gap-2">
+                            {item.originalItem.merchant?.logo_url && (
+                              <img
+                                src={item.originalItem.merchant.logo_url}
+                                alt={item.originalItem.merchant.name}
+                                className="w-8 h-8 object-contain"
+                              />
+                            )}
+                            <span className="text-xs text-gray-600">
+                              {item.originalItem.merchant?.name}
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

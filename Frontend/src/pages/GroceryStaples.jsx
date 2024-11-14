@@ -1,83 +1,74 @@
 import { useState, useEffect } from 'react';
-import { fetchCategories } from '../api/categories';
+import { config } from '../config/index';
+import { CategoryCard } from '../components/CategoryCard';
 
 const GroceryStaples = () => {
-  const [staples, setStaples] = useState([]);
+  const [staples, setStaples] = useState({ data: [], metadata: {} });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadStaples = async () => {
+    const fetchStaples = async () => {
       try {
-        // Fetch categories with specific IDs for staple items
-        const result = await fetchCategories({
-          categories: ['milk', 'bread', 'eggs', 'rice', 'pasta', 'potatoes', 'onions', 'chicken', 'bananas', 'carrots'],
-          sortBy: 'interest',
-          sortOrder: 'desc'
-        });
-        setStaples(result.data);
+        setLoading(true);
+        const response = await fetch(`${config.API_URL}/staples`);
+        if (!response.ok) throw new Error('Failed to fetch staples');
+        const data = await response.json();
+        setStaples(data);
       } catch (error) {
-        console.error('Failed to load staples:', error);
+        console.error('Failed to fetch grocery staples', error);
+        setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    loadStaples();
+    fetchStaples();
   }, []);
 
-  return (
-    <div className="max-w-4xl mx-auto">
-      <header className="text-center mb-12">
-        <h1 className="text-4xl font-logo font-bold text-gray-900 mb-4">
-          Top 10 Canadian Grocery Staples
-        </h1>
-        <p className="text-xl font-body text-gray-600 max-w-2xl mx-auto">
-          Track the prices of essential grocery items that form the foundation of Canadian households. 
-          These staples were selected based on consumption data and shopping patterns across the country.
-        </p>
-      </header>
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto text-center py-12">
+        <p>Loading staples...</p>
+      </div>
+    );
+  }
 
-      <div className="bg-blue-50 p-6 rounded-lg mb-12">
-        <h2 className="text-xl font-semibold text-blue-900 mb-3">Why Track Staples?</h2>
-        <p className="text-blue-800">
-          Monitoring the prices of these essential items helps you:
-          <ul className="list-disc ml-6 mt-2 space-y-1">
-            <li>Understand overall grocery inflation trends</li>
-            <li>Make informed decisions about when and where to shop</li>
-            <li>Plan your grocery budget more effectively</li>
-            <li>Compare prices across different stores easily</li>
-          </ul>
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto text-center py-12">
+        <p className="text-red-500">Error: {error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-logo font-bold text-gray-900 mb-6">
+          Essential Staples
+        </h1>
+        <p className="text-xl font-body text-gray-600">
+          Track prices of the top {staples.metadata.totalCount || 0} grocery staples in Canada
+        </p>
+        <p className="text-sm text-gray-500 mt-2">
+          Showing {staples.metadata.totalItems || 0} items across all categories
         </p>
       </div>
 
-      {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {staples.map((category, index) => (
-            <div key={category._id} className="flex items-center gap-4 bg-white p-6 rounded-lg shadow-sm">
-              <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <span className="text-xl font-bold text-blue-600">#{index + 1}</span>
-              </div>
-              <div className="flex-grow">
-                <h3 className="text-xl font-semibold mb-2">{category.name}</h3>
-                <div className="flex items-center gap-4">
-                  <span className="text-green-600 font-semibold">
-                    Best price: ${Math.min(...category.canonicalItems.map(item => item.originalItem.current_price))}
-                  </span>
-                  <span className="text-gray-500">
-                    Available at {category.canonicalItems.length} stores
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {staples.data.map((category) => (
+          <CategoryCard key={category._id} category={category} />
+        ))}
+      </div>
+
+      {staples.data.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-gray-500">No staples found</p>
         </div>
       )}
     </div>
   );
 };
 
-export default GroceryStaples; 
+export default GroceryStaples;

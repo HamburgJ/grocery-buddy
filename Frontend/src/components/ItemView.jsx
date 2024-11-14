@@ -4,6 +4,14 @@ import { useState } from 'react';
 export const ItemView = ({ item, category, onClose }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   const handleImageClick = () => {
     setIsImageExpanded(!isImageExpanded);
   };
@@ -43,7 +51,28 @@ export const ItemView = ({ item, category, onClose }) => {
                     ${parseFloat(item.price).toFixed(2)}
                   </p>
                 )}
+                {item.discount && (
+                  <p className="text-red-600 font-medium mt-1">
+                    Save {item.discount}%
+                  </p>
+                )}
               </div>
+              
+              {(item.valid_from || item.valid_to) && (
+                <div className="mb-4 p-2 bg-gray-50 rounded-md">
+                  <p className="text-sm text-gray-600">
+                    {item.valid_from && `Valid from ${formatDate(item.valid_from)}`}
+                    {item.valid_from && item.valid_to && ' to '}
+                    {item.valid_to && formatDate(item.valid_to)}
+                  </p>
+                </div>
+              )}
+              
+              {item.sale_story && (
+                <div className="mb-4 p-2 bg-red-50 rounded-md">
+                  <p className="text-sm text-red-600">{item.sale_story}</p>
+                </div>
+              )}
               
               {item.brand && (
                 <p className="text-gray-600 mb-2">Brand: {item.brand}</p>
@@ -53,13 +82,9 @@ export const ItemView = ({ item, category, onClose }) => {
                 <p className="text-gray-700 mb-4">{item.description}</p>
               )}
               
-              {item.sale_story && (
-                <p className="text-red-600 mb-4">{item.sale_story}</p>
-              )}
-              
               {item.merchant && (
                 <div className="border-t pt-4">
-                  <h4 className="font-semibold mb-2">Merchant Information</h4>
+                  <h4 className="font-semibold mb-2">Merchant</h4>
                   <div className="flex items-center gap-2">
                     {item.merchant.logo_url && (
                       <img
@@ -75,7 +100,6 @@ export const ItemView = ({ item, category, onClose }) => {
               
               <div className="border-t pt-4 mt-4">
                 <h4 className="font-semibold mb-2">Category</h4>
-                <p>{category.name}</p>
                 <p className="text-sm text-gray-600">{category.cat}</p>
               </div>
             </div>

@@ -3,15 +3,17 @@ import { config } from '../config';
 const BASE_URL = config.API_URL;
 
 export const fetchCategories = async ({
-  searchTerm,
+  q,
   page = 1,
+  limit = 15,
   categories = [],
   sortBy = 'interest',
   sortOrder = 'desc'
 }) => {
   const params = new URLSearchParams({
-    ...(searchTerm && { q: searchTerm }),
-    page: page.toString(),
+    ...(q && { q }),
+    skip: ((page - 1) * limit).toString(),
+    limit: limit.toString(),
     sortBy,
     sortOrder,
   });

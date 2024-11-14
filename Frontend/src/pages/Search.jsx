@@ -4,15 +4,22 @@ import { SearchHeader } from '../components/SearchHeader';
 import { Sidebar } from '../components/layout/Sidebar';
 import { useSearchParams } from 'react-router-dom';
 import { fetchCategories } from '../api/categories';
+import { useMerchants } from '../contexts/MerchantContext';
+
+const ITEMS_PER_PAGE = 15;
 
 const Search = () => {
+  const { merchants } = useMerchants();
   const [searchParams, setSearchParams] = useSearchParams();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [metadata, setMetadata] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('grid');
   
+  const selectedMerchants = searchParams.get('merchants')?.split(',') || [];
+
   const currentPage = parseInt(searchParams.get('page')) || 1;
   const searchTerm = searchParams.get('q') || '';
   const selectedCategories = searchParams.get('categories')?.split(',') || [];
@@ -27,19 +34,35 @@ const Search = () => {
     setLoading(true);
     try {
       const result = await fetchCategories({
-        searchTerm,
+        q: searchTerm,
         page: currentPage,
+        limit: ITEMS_PER_PAGE,
         categories: selectedCategories,
         sortBy,
         sortOrder
       });
+      
       setCategories(result.data);
-      setMetadata(result.metadata);
+      setMetadata({
+        ...result.metadata,
+        currentPage,
+        totalPages: Math.ceil(result.metadata.totalCount / ITEMS_PER_PAGE)
+      });
     } catch (err) {
       setError('Failed to load categories');
+      console.error(err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > metadata?.totalPages) return;
+    
+    updateSearch({ 
+      ...Object.fromEntries(searchParams.entries()),
+      page: page.toString() 
+    });
   };
 
   const updateSearch = (updates) => {
@@ -55,7 +78,7 @@ const Search = () => {
   };
 
   return (
-    <div className="relative">
+    <div className="container mx-auto px-4">
       <SearchHeader
         searchTerm={searchTerm}
         onSearch={(term) => updateSearch({ q: term, page: '1' })}
@@ -66,19 +89,23 @@ const Search = () => {
         })}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
+        viewMode={viewMode}
+        setViewMode={setViewMode}
       />
       
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-        </div>
+        <div>Loading...</div>
       ) : error ? (
-        <div className="text-center py-12 text-red-600">{error}</div>
+        <div>{error}</div>
       ) : (
         <CategoryGrid 
           categories={categories}
-          onPageChange={(page) => updateSearch({ page: page.toString() })}
-          metadata={metadata}
+          onPageChange={handlePageChange}
+          metadata={{
+            ...metadata,
+            hasNextPage: currentPage < metadata?.totalPages
+          }}
+          viewMode={viewMode}
         />
       )}
       
@@ -87,12 +114,23 @@ const Search = () => {
         onClose={() => setSidebarOpen(false)}
         categories={metadata?.validCategories || []}
         selectedCategories={selectedCategories}
+        merchants={merchants}
+        selectedMerchants={selectedMerchants}
         onCategoryChange={(category) => {
           const newCategories = selectedCategories.includes(category)
             ? selectedCategories.filter(c => c !== category)
             : [...selectedCategories, category];
           updateSearch({ 
             categories: newCategories.join(','),
+            page: '1'
+          });
+        }}
+        onMerchantChange={(merchantId) => {
+          const newMerchants = selectedMerchants.includes(merchantId)
+            ? selectedMerchants.filter(id => id !== merchantId)
+            : [...selectedMerchants, merchantId];
+          updateSearch({
+            merchants: newMerchants.join(','),
             page: '1'
           });
         }}

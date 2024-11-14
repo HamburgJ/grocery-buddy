@@ -1,23 +1,7 @@
 import { useMerchants } from '../../contexts/MerchantContext';
-import { useState, useEffect } from 'react';
-import { config } from '../../config/index';
 
 export const MerchantSidebar = () => {
-  const { selectedMerchants, setSelectedMerchants } = useMerchants();
-  const [merchants, setMerchants] = useState([]);
-
-  useEffect(() => {
-    const loadMerchants = async () => {
-      try {
-        const response = await fetch(`${config.API_URL}/merchants/`);
-        const data = await response.json();
-        setMerchants(data);
-      } catch (error) {
-        console.error('Failed to load merchants');
-      }
-    };
-    loadMerchants();
-  }, []);
+  const { selectedMerchants, setSelectedMerchants, merchants } = useMerchants();
 
   const handleToggleMerchant = (merchantId) => {
     setSelectedMerchants(prev =>
@@ -30,7 +14,7 @@ export const MerchantSidebar = () => {
   return (
     <div className="w-64 bg-white shadow-md p-4 rounded-lg">
       <h3 className="text-lg font-medium mb-4">Selected Stores</h3>
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
         {merchants.map(merchant => (
           <label key={merchant._id} className="flex items-center gap-2 cursor-pointer">
             <input

@@ -1,3 +1,12 @@
+console.log('Starting application...');
+console.log('Current directory:', process.cwd());
+console.log('Environment variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  MONGODB_URI: process.env.MONGODB_URI ? '[REDACTED]' : 'not set',
+  CORS_ORIGINS: process.env.CORS_ORIGINS
+});
+
 require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 const express = require('express');
 const mongoose = require('mongoose');
@@ -11,6 +20,7 @@ const itemRoutes = require('./routes/itemRoutes');
 const scraperRoutes = require('./routes/scraperRoutes');
 const itemCategorizationRoutes = require('./routes/itemCategorizationRoutes');
 const canonicalCategoryRoutes = require('./routes/canonicalCategoryRoutes');
+const staplesRoutes = require('./routes/staplesRoutes'); // Add this line
 
 const app = express();
 
@@ -31,7 +41,10 @@ app.use(cors({
 app.use(express.json());
 
 // Database connection
-mongoose.connect(config.MONGODB_URI)
+mongoose.connect(config.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -47,6 +60,7 @@ app.use('/api/items', itemRoutes);
 app.use('/api/scrapers', scraperRoutes);
 app.use('/api/itemCategorizations', itemCategorizationRoutes);
 app.use('/api/canonicalCategories', canonicalCategoryRoutes);
+app.use('/api/staples', staplesRoutes); // Add this line
 
 // Add after your other routes
 app.get('/', (req, res) => {
@@ -71,13 +85,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-
-// Add at the beginning of the file
-console.log('Starting application...');
-console.log('Current directory:', process.cwd());
-console.log('Environment variables:', {
-  NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
-  MONGODB_URI: process.env.MONGODB_URI ? '[REDACTED]' : 'not set',
-  CORS_ORIGINS: process.env.CORS_ORIGINS
-});

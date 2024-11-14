@@ -11,5 +11,11 @@ const canonicalCategorySchema = new mongoose.Schema({
     categories: [{ type: String, default: [] }]
 }, { timestamps: true });
 
+// Add text index on name and base_name fields
+canonicalCategorySchema.index({ 
+    name: 'text',
+    base_name: 'text'
+});
+
 module.exports = mongoose.model('CanonicalCategory', canonicalCategorySchema, 'CanonicalCategory');
 

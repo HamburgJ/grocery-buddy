@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { useMerchants } from '../contexts/MerchantContext';
-import { env } from '../config/environment';
+import { config } from '../config/index';
+
 export const MerchantSelectionModal = ({ onComplete }) => {
   const { setSelectedMerchants } = useMerchants();
   const [merchants, setMerchants] = useState([]);
@@ -14,9 +15,10 @@ export const MerchantSelectionModal = ({ onComplete }) => {
     const loadMerchants = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${env.API_URL}/merchants/`);
+        const response = await fetch(`${config.API_URL}/merchants/`);
         const data = await response.json();
         setMerchants(data);
+        setSelectedMerchantIds(data.map(m => m._id));
       } catch (error) {
         setError('Failed to load merchants');
       } finally {
@@ -92,6 +94,7 @@ export const MerchantSelectionModal = ({ onComplete }) => {
                   src={merchant.logo_url}
                   alt={merchant.name}
                   className="w-16 h-16 object-contain"
+                  style={{ userSelect: 'none' }}
                 />
               </div>
             </label>
@@ -109,4 +112,4 @@ export const MerchantSelectionModal = ({ onComplete }) => {
       </div>
     </div>
   );
-}; 
+};

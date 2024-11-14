@@ -426,3 +426,9 @@ For questions or feedback, please open an issue in the repository.
 ---
 
 **Note**: This project is for educational purposes and is not affiliated with any of the mentioned retailers.
+
+#TODOS:
+price strings
+get backend UP
+scraper timers
+add merchant searching

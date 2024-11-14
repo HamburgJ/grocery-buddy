@@ -12,7 +12,7 @@ export const Layout = ({ children }) => {
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="flex gap-6">
           {showSidebar && (
-            <div className="hidden lg:block flex-shrink-0">
+            <div className="hidden xl:block flex-shrink-0">
               <div className="sticky top-6">
                 <MerchantSidebar />
               </div>
