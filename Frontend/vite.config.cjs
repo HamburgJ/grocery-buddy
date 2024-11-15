@@ -10,7 +10,7 @@ export default defineConfig({
   define: {
     'process.env.VITE_GA_TRACKING_ID': JSON.stringify(process.env.VITE_GA_TRACKING_ID),
     'process.env.VITE_ENV': JSON.stringify(process.env.VITE_ENV),
-    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL),
+    'process.env.VITE_API_URL': JSON.stringify(process.env.REACT_APP_API_URL),
     'process.env.VITE_GEOCODING_API_URL': JSON.stringify(process.env.VITE_GEOCODING_API_URL)
   },
   esbuild: {
