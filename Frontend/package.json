@@ -2,7 +2,7 @@
   "name": "deal-finder",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://yourusername.github.io/grocery-buddy",
+  "homepage": "https://hamburgj.github.io/grocery-buddy",
   "dependencies": {
     "lucide-react": "^0.330.0",
     "react": "^18.2.0",

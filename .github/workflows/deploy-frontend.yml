@@ -12,6 +12,8 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -28,11 +30,11 @@ jobs:
           cd Frontend
           npm run build
         env:
-          REACT_APP_API_URL: 'https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api'
           VITE_API_URL: 'https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api'
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: Frontend/dist
           branch: gh-pages
+          folder: Frontend/dist
+          clean: true
