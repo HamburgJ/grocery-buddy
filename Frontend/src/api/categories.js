@@ -44,5 +44,6 @@ export const fetchFavoriteCategories = async (favoriteIds) => {
   
   const response = await fetch(`${env.API_URL}/canonicalCategories/ids?${params}`);
   if (!response.ok) throw new Error('Failed to fetch favorite categories');
-  return response.json();
+  const result = await response.json();
+  return result.data;
 };
