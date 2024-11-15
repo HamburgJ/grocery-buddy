@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
+          node-version: '20.x'
 
       - name: Install Dependencies
         run: |
@@ -29,9 +29,10 @@ jobs:
           npm run build
         env:
           REACT_APP_API_URL: 'https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api'
+          VITE_API_URL: 'https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api'
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: Frontend/build
-          branch: gh-pages 
+          folder: Frontend/dist
+          branch: gh-pages
