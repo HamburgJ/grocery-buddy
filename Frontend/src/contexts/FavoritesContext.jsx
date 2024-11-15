@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { storage } from '../utils/storage';
+import { getItem, setItem } from '../utils/storage';
 
 const FavoritesContext = createContext();
 
@@ -7,12 +7,12 @@ export const useFavorites = () => useContext(FavoritesContext);
 
 export const FavoritesProvider = ({ children }) => {
   const [favorites, setFavorites] = useState(() => {
-    const saved = storage.getItem('favorites');
-    return saved ? JSON.parse(saved) : [];
+    const saved = getItem('favorites');
+    return saved || [];
   });
 
   useEffect(() => {
-    storage.setItem('favorites', JSON.stringify(favorites));
+    setItem('favorites', favorites);
   }, [favorites]);
 
   const toggleFavorite = (categoryId) => {

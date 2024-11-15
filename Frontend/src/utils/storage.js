@@ -1,51 +1,37 @@
-import { config } from '../config';
+import { env } from '../config/environment';
 
-class MemoryStorage {
-  constructor() {
-    this.store = new Map();
+const getStorageType = () => {
+  return env.STORAGE_TYPE === 'localStorage' ? localStorage : sessionStorage;
+};
+
+export const getItem = (key) => {
+  try {
+    const item = getStorageType().getItem(key);
+    return item ? JSON.parse(item) : null;
+  } catch (error) {
+    if (env.ENABLE_LOGGING) {
+      console.error('Storage Error:', error);
+    }
+    return null;
   }
+};
 
-  getItem(key) {
-    return this.store.get(key) || null;
+export const setItem = (key, value) => {
+  try {
+    getStorageType().setItem(key, JSON.stringify(value));
+  } catch (error) {
+    if (env.ENABLE_LOGGING) {
+      console.error('Storage Error:', error);
+    }
   }
+};
 
-  setItem(key, value) {
-    this.store.set(key, value);
-  }
-
-  removeItem(key) {
-    this.store.delete(key);
-  }
-
-  clear() {
-    this.store.clear();
-  }
-}
-
-const memoryStorage = new MemoryStorage();
-
-export const storage = {
-  getItem: (key) => {
-    return config.STORAGE_TYPE === 'localStorage' 
-      ? localStorage.getItem(key)
-      : memoryStorage.getItem(key);
-  },
-  
-  setItem: (key, value) => {
-    return config.STORAGE_TYPE === 'localStorage'
-      ? localStorage.setItem(key, value)
-      : memoryStorage.setItem(key, value);
-  },
-  
-  removeItem: (key) => {
-    return config.STORAGE_TYPE === 'localStorage'
-      ? localStorage.removeItem(key)
-      : memoryStorage.removeItem(key);
-  },
-  
-  clear: () => {
-    return config.STORAGE_TYPE === 'localStorage'
-      ? localStorage.clear()
-      : memoryStorage.clear();
+export const removeItem = (key) => {
+  try {
+    getStorageType().removeItem(key);
+  } catch (error) {
+    if (env.ENABLE_LOGGING) {
+      console.error('Storage Error:', error);
+    }
   }
 }; 

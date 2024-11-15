@@ -1,7 +1,5 @@
 import { env } from '../config/environment';
 
-const BASE_URL = config.API_URL;
-
 export const fetchCategories = async ({
   q,
   page = 1,
@@ -27,7 +25,7 @@ export const fetchCategories = async ({
     if (!response.ok) throw new Error('Failed to fetch categories');
     return response.json();
   } catch (error) {
-    if (config.ENABLE_LOGGING) {
+    if (env.ENABLE_LOGGING) {
       console.error('API Error:', error);
     }
     throw error;
@@ -40,11 +38,11 @@ export const fetchDeals = async () => {
 }; 
 
 export const fetchFavoriteCategories = async (favoriteIds) => {
-    const params = new URLSearchParams({
-      ids: favoriteIds.join(',')
-    });
-    
-    const response = await fetch(`${env.API_URL}/canonicalCategories/ids?${params}`);
-    if (!response.ok) throw new Error('Failed to fetch favorite categories');
-    return response.json();
-  };
+  const params = new URLSearchParams({
+    ids: favoriteIds.join(',')
+  });
+  
+  const response = await fetch(`${env.API_URL}/canonicalCategories/ids?${params}`);
+  if (!response.ok) throw new Error('Failed to fetch favorite categories');
+  return response.json();
+};
