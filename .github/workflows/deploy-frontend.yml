@@ -30,7 +30,8 @@ jobs:
           cd Frontend
           npm run build
         env:
-          VITE_API_URL: 'https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api'
+          VITE_API_URL: https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api
+          REACT_APP_API_URL: https://grocery-buddy-backend-czdca4cbasedhxcn.canadaeast-01.azurewebsites.net/api
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
