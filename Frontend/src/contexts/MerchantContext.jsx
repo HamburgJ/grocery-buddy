@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import { config } from '../config/index';
+import { env } from '../config/environment';
 
 const MerchantContext = createContext();
 
@@ -15,7 +15,7 @@ export const MerchantProvider = ({ children }) => {
   useEffect(() => {
     const fetchMerchants = async () => {
       try {
-        const response = await fetch(`${config.API_URL}/merchants/`);
+        const response = await fetch(`${env.API_URL}/merchants/`);
         const data = await response.json();
         setMerchants(data);
         if (!selectedMerchants) {

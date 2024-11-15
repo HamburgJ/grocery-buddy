@@ -1,19 +1,26 @@
 const environments = {
   development: {
-    API_URL: 'http://localhost:3001',
-    GEOCODING_API_URL: '/api/geocode',
-    ENABLE_DEBUG: true
-  },
-  test: {
-    API_URL: 'http://localhost:3001',
-    GEOCODING_API_URL: '/api/geocode',
+    API_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+    ENABLE_LOGGING: import.meta.env.VITE_ENABLE_LOGGING === 'true',
+    STORAGE_TYPE: import.meta.env.VITE_STORAGE_TYPE || 'memory',
     ENABLE_DEBUG: true
   },
   production: {
-    API_URL: import.meta.env.VITE_API_URL || 'https://your-production-api.com',
-    GEOCODING_API_URL: import.meta.env.VITE_GEOCODING_API_URL || '/api/geocode',
+    API_URL: import.meta.env.VITE_API_URL,
+    ENABLE_LOGGING: false,
+    STORAGE_TYPE: 'localStorage',
     ENABLE_DEBUG: false
   }
 };
 
-export const env = environments[import.meta.env.MODE || 'development']; 
+const getApiUrl = () => {
+  if (import.meta.env.MODE === 'production') {
+    return (import.meta.env.VITE_API_URL || environments.production.API_URL).replace(/\/$/, '');
+  }
+  return environments.development.API_URL;
+};
+
+export const env = {
+  ...environments[import.meta.env.MODE || 'development'],
+  API_URL: getApiUrl()
+}; 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { config } from '../config/index';
+import { env } from '../config/environment';
 import { CategoryCard } from '../components/CategoryCard';
 
 const GroceryStaples = () => {
@@ -11,7 +11,7 @@ const GroceryStaples = () => {
     const fetchStaples = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${config.API_URL}/staples`);
+        const response = await fetch(`${env.API_URL}/staples`);
         if (!response.ok) throw new Error('Failed to fetch staples');
         const data = await response.json();
         setStaples(data);

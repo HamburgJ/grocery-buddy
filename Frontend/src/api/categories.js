@@ -1,4 +1,4 @@
-import { config } from '../config';
+import { env } from '../config/environment';
 
 const BASE_URL = config.API_URL;
 
@@ -23,7 +23,7 @@ export const fetchCategories = async ({
   }
   
   try {
-    const response = await fetch(`${BASE_URL}/canonicalCategories?${params}`);
+    const response = await fetch(`${env.API_URL}/canonicalCategories?${params}`);
     if (!response.ok) throw new Error('Failed to fetch categories');
     return response.json();
   } catch (error) {
@@ -35,7 +35,7 @@ export const fetchCategories = async ({
 };
 
 export const fetchDeals = async () => {
-  const response = await fetch(`${BASE_URL}/deals`);
+  const response = await fetch(`${env.API_URL}/deals`);
   return response.json();
 }; 
 
@@ -44,7 +44,7 @@ export const fetchFavoriteCategories = async (favoriteIds) => {
       ids: favoriteIds.join(',')
     });
     
-    const response = await fetch(`${BASE_URL}/canonicalCategories/ids?${params}`);
+    const response = await fetch(`${env.API_URL}/canonicalCategories/ids?${params}`);
     if (!response.ok) throw new Error('Failed to fetch favorite categories');
     return response.json();
   };
