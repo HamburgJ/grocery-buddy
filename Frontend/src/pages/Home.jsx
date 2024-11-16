@@ -33,7 +33,7 @@ const Home = () => {
       </div>
       
       <Link
-        to="/deals"
+        to="/staples"
         className="inline-block bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors"
       >
         Explore Deals
