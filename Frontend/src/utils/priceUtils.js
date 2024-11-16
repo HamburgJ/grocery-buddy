@@ -11,6 +11,8 @@ const POST_PRICE_REPLACEMENTS = {
     'lb.': '/lb',
     '/ea': '',
     '/pkg': '',
+    '//lb': '/lb',
+    '//kg': '',
     // anything string which ends in /kg, erase whole string
     '([0-9.]+)?/kg': '',
 };

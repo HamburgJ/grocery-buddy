@@ -135,7 +135,7 @@ const Favorites = () => {
           onClose={() => setSidebarOpen(false)}
           categories={metadata?.validCategories || VALID_CATEGORIES}
           onApplyFilters={() => setSidebarOpen(false)}
-          showMerchantFilters={false}
+          showMerchantFilters={true}
         />
       )}
     </div>

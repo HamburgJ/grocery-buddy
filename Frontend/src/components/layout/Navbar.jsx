@@ -51,14 +51,14 @@ export const Navbar = () => {
             <NavLink to="/" icon={<Home size={20} />} label="Home" />
             <NavLink to="/search" icon={<SearchIcon size={20} />} label="Search" />
             <NavLink 
-              to="/favorites" 
-              icon={<Heart size={20} />} 
-              label={`Favorites (${favorites.length})`} 
-            />
-            <NavLink 
               to="/staples" 
               icon={<ShoppingBasket size={20} />} 
               label="Staples" 
+            />
+            <NavLink 
+              to="/favorites" 
+              icon={<Heart size={20} />} 
+              label={`Favorites (${favorites.length})`} 
             />
           </div>
         </div>
@@ -87,12 +87,13 @@ export const Navbar = () => {
           <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg w-full">
             <MobileNavLink to="/" label="Home" icon={<Home size={18} />} />
             <MobileNavLink to="/search" label="Search" icon={<SearchIcon size={18} />} />
+            <MobileNavLink to="/staples" label="Staples" icon={<ShoppingBasket size={18} />} />
             <MobileNavLink 
               to="/favorites" 
               label={`Favorites (${favorites.length})`} 
               icon={<Heart size={18} />} 
             />
-            <MobileNavLink to="/staples" label="Staples" icon={<ShoppingBasket size={18} />} />
+            
           </div>
         </div>
       </div>

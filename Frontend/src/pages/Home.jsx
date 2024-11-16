@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Search as SearchIcon, Tag, ShoppingBasket } from 'lucide-react';
+import { Search as SearchIcon, Tag, ShoppingBasket, Heart } from 'lucide-react';
 
 const Home = () => {
   return (
@@ -13,12 +13,6 @@ const Home = () => {
       
       <div className="grid md:grid-cols-3 gap-8 mb-12">
         <FeatureCard
-          icon={<Tag className="w-8 h-8" />}
-          title="Best Deals"
-          description="Find the hottest deals and biggest savings updated daily."
-          link="/deals"
-        />
-        <FeatureCard
           icon={<SearchIcon className="w-8 h-8" />}
           title="Smart Search"
           description="Search and filter through thousands of products easily."
@@ -29,6 +23,12 @@ const Home = () => {
           title="Essential Staples"
           description="Track prices of the top 10 grocery staples in Canada."
           link="/staples"
+        />
+        <FeatureCard
+          icon={<Heart className="w-8 h-8" />}
+          title="My Favorites"
+          description="Save and track your favorite items across all stores."
+          link="/favorites"
         />
       </div>
       
