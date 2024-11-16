@@ -19,13 +19,14 @@ export const Sidebar = ({
     updateFilters({ categories: newCategories });
   };
 
-  const handleMerchantChange = (merchantId) => {
-    const newMerchants = filters.merchants.includes(merchantId)
-      ? filters.merchants.filter(id => id !== merchantId)
-      : [...filters.merchants, merchantId];
-    if (newMerchants.length > 0) {
-      updateFilters({ merchants: newMerchants });
-    }
+  const handleToggleMerchant = (merchantId) => {
+    const merchantIdStr = merchantId.toString();
+    const newMerchants = filters.merchants.includes(merchantIdStr)
+      ? filters.merchants.filter(id => id !== merchantIdStr)
+      : [...filters.merchants, merchantIdStr];
+    
+    if (newMerchants.length === 0) return;
+    updateFilters({ merchants: newMerchants });
   };
 
   return (
@@ -67,8 +68,8 @@ export const Sidebar = ({
                   <label key={merchant.merchant_id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={filters.merchants.includes(merchant.merchant_id)}
-                      onChange={() => handleMerchantChange(merchant.merchant_id)}
+                      checked={filters.merchants.includes(merchant.merchant_id.toString())}
+                      onChange={() => handleToggleMerchant(merchant.merchant_id)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                     <div className="flex items-center gap-2">
