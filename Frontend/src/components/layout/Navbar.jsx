@@ -32,8 +32,8 @@ export const Navbar = () => {
   }, [location]);
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <nav className="bg-white shadow-sm sticky top-0 z-50 w-full">
+      <div className="max-w-7xl mx-auto px-4 w-full">
         {/* Desktop Navigation */}
         <div className="hidden lg:flex justify-between h-16">
           <div className="flex">
@@ -64,27 +64,27 @@ export const Navbar = () => {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="flex lg:hidden justify-between h-14">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-xl" role="img" aria-label="Food categories">
+        <div className="flex lg:hidden justify-between h-14 w-full min-w-0">
+          <div className="flex items-center min-w-0">
+            <Link to="/" className="flex items-center gap-2 min-w-0">
+              <span className="text-xl flex-shrink-0" role="img" aria-label="Food categories">
                 {LOGO_EMOJIS}
               </span>
-              <span className="font-bold text-gray-900">Grocery Buddy</span>
+              <span className="font-bold text-gray-900 truncate">Grocery Buddy</span>
             </Link>
           </div>
 
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-2 rounded-md hover:bg-gray-100"
+            className="p-2 rounded-md hover:bg-gray-100 flex-shrink-0"
           >
             <Menu className="h-5 w-5 text-gray-600" />
           </button>
         </div>
 
         {/* Mobile menu dropdown */}
-        <div className={`${isMenuOpen ? 'block' : 'hidden'} lg:hidden border-t ml-auto`}>
-          <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg">
+        <div className={`${isMenuOpen ? 'block' : 'hidden'} lg:hidden border-t w-full`}>
+          <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg w-full">
             <MobileNavLink to="/" label="Home" icon={<Home size={18} />} />
             <MobileNavLink to="/search" label="Search" icon={<SearchIcon size={18} />} />
             <MobileNavLink 

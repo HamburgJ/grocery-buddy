@@ -22,4 +22,15 @@
 /* Ensure modal backdrops remain dark */
 .modal-backdrop {
   @apply bg-black bg-opacity-50;
+}
+
+/* Prevent content from shrinking below viewport width */
+#root {
+  min-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  min-width: 100vw;
+  overflow-x: hidden;
 } 
