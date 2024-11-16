@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
+import { formatPrice } from '../utils/priceUtils';
 
 export const ItemView = ({ item, category, onClose }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
@@ -17,7 +18,7 @@ export const ItemView = ({ item, category, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-4 border-b flex justify-between items-center sticky top-0 bg-white">
           <h3 className="text-xl font-semibold">{item.name}</h3>
@@ -44,7 +45,7 @@ export const ItemView = ({ item, category, onClose }) => {
             <div className="w-1/2">
               <div className="mb-4">
                 <p className="text-2xl font-bold text-gray-900">
-                  ${parseFloat(item.current_price).toFixed(2)}
+                  {formatPrice(item)}
                 </p>
                 {item.price !== item.current_price && (
                   <p className="text-gray-500 line-through">

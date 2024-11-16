@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 export const Layout = ({ children }) => {
   const location = useLocation();
-  const showSidebar = ['/deals', '/search', '/favorites'].includes(location.pathname);
+  const showSidebar = ['/staples', '/search', '/favorites'].includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-gray-50">

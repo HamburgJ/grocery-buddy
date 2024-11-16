@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Force light mode styles regardless of system theme */
+:root {
+  color-scheme: light;
+}
+
+/* Override browser's default dark mode styles */
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: light;
+  }
+  
+  body {
+    background-color: white;
+    color: black;
+  }
+}
+
+/* Ensure modal backdrops remain dark */
+.modal-backdrop {
+  @apply bg-black bg-opacity-50;
+} 

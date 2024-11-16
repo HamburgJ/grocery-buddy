@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Star, StarOff, ChevronDown, ChevronRight } from 'lucide-react';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { CategoryModal } from './CategoryModal';
+import { formatPrice } from '../utils/priceUtils';
 
 export const ListCard = ({ category, isExpanded }) => {
   const [expanded, setExpanded] = useState(false);
@@ -46,9 +47,9 @@ export const ListCard = ({ category, isExpanded }) => {
           </div>
         </td>
         <td className="py-1.5 px-1 text-right whitespace-nowrap w-24">
-          <div className="text-sm font-medium text-green-600">${bestPrice}</div>
+          <div className="text-sm font-medium text-green-600">{formatPrice(bestPriceItem)}</div>
           {bestPrice !== worstPrice && (
-            <div className="text-xs text-gray-500">to ${worstPrice}</div>
+            <div className="text-xs text-gray-500">to {formatPrice(sortedItems[sortedItems.length-1].originalItem)}</div>
           )}
         </td>
         <td className="py-1.5 px-1 min-w-[200px]">
@@ -103,7 +104,7 @@ export const ListCard = ({ category, isExpanded }) => {
                       <td className="w-16"></td>
                       <td className="py-0.5 px-1 text-right whitespace-nowrap w-24">
                         <div className={`${isLowestPrice ? 'text-green-700 font-medium' : 'text-gray-900'}`}>
-                          ${item.originalItem.current_price}
+                          {formatPrice(item.originalItem)}
                         </div>
                         {item.originalItem.price !== item.originalItem.current_price && (
                           <div className="text-gray-500 line-through">${item.originalItem.price}</div>

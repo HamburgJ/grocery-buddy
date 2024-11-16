@@ -1,16 +1,14 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { env } from '../config/environment';
+import { useFilters } from './FilterContext';
 
 const MerchantContext = createContext();
 
 export const useMerchants = () => useContext(MerchantContext);
 
 export const MerchantProvider = ({ children }) => {
-  const [selectedMerchants, setSelectedMerchants] = useState(() => {
-    const saved = localStorage.getItem('selectedMerchants');
-    return saved ? JSON.parse(saved) : null;
-  });
   const [merchants, setMerchants] = useState([]);
+  const { initializeMerchants } = useFilters();
 
   useEffect(() => {
     const fetchMerchants = async () => {
@@ -18,10 +16,7 @@ export const MerchantProvider = ({ children }) => {
         const response = await fetch(`${env.API_URL}/merchants/`);
         const data = await response.json();
         setMerchants(data);
-        if (!selectedMerchants) {
-          const merchantIds = data.map(merchant => merchant._id);
-          setSelectedMerchants(merchantIds);
-        }
+        initializeMerchants(data.map(m => m.merchant_id));
       } catch (error) {
         console.error('Failed to fetch merchants', error);
       }
@@ -30,18 +25,8 @@ export const MerchantProvider = ({ children }) => {
     fetchMerchants();
   }, []);
 
-  useEffect(() => {
-    if (selectedMerchants) {
-      localStorage.setItem('selectedMerchants', JSON.stringify(selectedMerchants));
-    }
-  }, [selectedMerchants]);
-
   return (
-    <MerchantContext.Provider value={{ 
-      selectedMerchants, 
-      setSelectedMerchants,
-      merchants
-    }}>
+    <MerchantContext.Provider value={{ merchants }}>
       {children}
     </MerchantContext.Provider>
   );

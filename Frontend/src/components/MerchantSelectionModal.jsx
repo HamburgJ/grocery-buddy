@@ -56,7 +56,7 @@ export const MerchantSelectionModal = ({ onComplete }) => {
   }, [merchants]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-8 z-50">
+    <div className="fixed inset-0 modal-backdrop flex items-center justify-center p-8 z-50">
       <div ref={modalRef} className="bg-white rounded-lg max-w-4xl w-full p-8 relative">
         <button
           onClick={handleSelectAllAndClose}
@@ -71,20 +71,20 @@ export const MerchantSelectionModal = ({ onComplete }) => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-h-96 overflow-y-auto p-2">
           {merchants.map(merchant => (
             <label
-              key={merchant._id}
+              key={merchant.merchant_id}
               className={`
                 flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors
-                ${selectedMerchantIds.includes(merchant._id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
+                ${selectedMerchantIds.includes(merchant.merchant_id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}
               `}
             >
               <input
                 type="checkbox"
-                checked={selectedMerchantIds.includes(merchant._id)}
+                checked={selectedMerchantIds.includes(merchant.merchant_id)}
                 onChange={() => {
                   setSelectedMerchantIds(prev =>
-                    prev.includes(merchant._id)
-                      ? prev.filter(id => id !== merchant._id)
-                      : [...prev, merchant._id]
+                    prev.includes(merchant.merchant_id)
+                      ? prev.filter(id => id !== merchant.merchant_id)
+                      : [...prev, merchant.merchant_id]
                   );
                 }}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"

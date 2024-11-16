@@ -2,7 +2,7 @@ const environments = {
   development: {
     API_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
     ENABLE_LOGGING: import.meta.env.VITE_ENABLE_LOGGING === 'true',
-    STORAGE_TYPE: import.meta.env.VITE_STORAGE_TYPE || 'memory',
+    STORAGE_TYPE: import.meta.env.VITE_STORAGE_TYPE || 'localStorage',
     ENABLE_DEBUG: true
   },
   production: {

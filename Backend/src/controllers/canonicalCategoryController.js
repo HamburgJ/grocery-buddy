@@ -3,12 +3,12 @@ const ItemCategorization = require('../models/itemCategorizationModel');
 const CanonicalItem = require('../models/canonicalItemModel');
 const CanonicalCategory = require('../models/canonicalCategoryModel');
 const mongoose = require('mongoose');
+const VALID_CATEGORIES = ['Pantry', 'Deli', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen'];
 
 exports.getCanonicalCategories = async (req, res) => {
     try {
       console.log('Getting canonical categories');
       
-      const VALID_CATEGORIES = ['Pantry', 'Deli', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen'];
       const DEFAULT_LIMIT = 15;
       const MAX_LIMIT = 100;
       
@@ -19,36 +19,27 @@ exports.getCanonicalCategories = async (req, res) => {
       const sortBy = req.query.sortBy || 'interest';
       const sortOrder = req.query.sortOrder === 'asc' ? 1 : -1;
       
-      // Handle categories parameter - accept comma-separated list
       let categories = req.query.categories ? 
         req.query.categories.split(',').map(c => c.trim()) : 
         VALID_CATEGORIES;
       
-      // Validate categories
       categories = categories.filter(cat => VALID_CATEGORIES.includes(cat));
       
-      // Handle merchantIds parameter - accept comma-separated list
-    const merchantIds = req.query.merchantIds ? 
-      req.query.merchantIds.split(',').map(id => parseInt(id.trim())) : 
-      null;
+      // Handle merchantIds parameter
+      let merchantIds = req.query.merchantIds ? 
+        req.query.merchantIds.split(',').map(id => parseInt(id.trim())) : 
+        null;
 
-    console.log('Merchant IDs:', merchantIds);
-
-      // If no valid categories provided, use all categories
-      if (categories.length === 0) {
-        categories = VALID_CATEGORIES;
-      }
-      
       // Base pipeline for both data and metadata
       const basePipeline = [
-        // Filter by valid categories
+        // Initial category filter
         {
           $match: {
             cat: { $in: categories }
           }
         },
         
-        // Get necessary fields from CanonicalCategory
+        // Project necessary fields
         {
           $project: {
             name: 1,
@@ -63,7 +54,7 @@ exports.getCanonicalCategories = async (req, res) => {
           }
         },
         
-        // Join with canonical items
+        // Join with canonical items and filter by merchant
         {
           $lookup: {
             from: 'CanonicalItem',
@@ -75,42 +66,14 @@ exports.getCanonicalCategories = async (req, res) => {
                 }
               },
               {
-                $project: {
-                  item_id: 1,
-                  flyer_id: 1,
-                  canonical_category: 1,
-                  name: 1,
-                  price: 1,
-                  value: 1,
-                  size: 1,
-                  unit: 1
-                }
-              },
-              {
                 $lookup: {
                   from: 'Items',
                   let: { itemId: '$item_id' },
                   pipeline: [
                     {
                       $match: {
-                        $expr: { $eq: ['$item_id', '$$itemId'] }
-                      }
-                    },
-                    {
-                      $project: {
-                        item_id: 1,
-                        merchant_id: 1,
-                        name: 1,
-                        description: 1,
-                        price: 1,
-                        current_price: 1,
-                        category: 1,
-                        sale_story: 1,
-                        brand: 1,
-                        cutout_image_url: 1,
-                        discount: 1,
-                        valid_from: 1,
-                        valid_to: 1
+                        $expr: { $eq: ['$item_id', '$$itemId'] },
+                        ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
                       }
                     },
                     {
@@ -125,11 +88,10 @@ exports.getCanonicalCategories = async (req, res) => {
                           },
                           {
                             $project: {
+                              _id: 0,
                               name: 1,
-                              name_identifier: 1,
                               logo_url: 1,
-                              flyer_url: 1,
-                              is_active: 1
+                              merchant_id: 1
                             }
                           }
                         ],
@@ -147,10 +109,12 @@ exports.getCanonicalCategories = async (req, res) => {
                 }
               },
               {
-                $unwind: {
-                  path: '$originalItem',
-                  preserveNullAndEmptyArrays: true
+                $match: {
+                  'originalItem.0': { $exists: true }
                 }
+              },
+              {
+                $unwind: '$originalItem'
               }
             ],
             as: 'canonicalItems'
@@ -167,28 +131,7 @@ exports.getCanonicalCategories = async (req, res) => {
           }
         }] : []),
 
-        ...(merchantIds ? [{
-            $match: {
-              $expr: {
-                $gt: [
-                  {
-                    $size: {
-                      $filter: {
-                        input: '$canonicalItems',
-                        as: 'item',
-                        cond: {
-                          $in: ['$$item.originalItem.merchant_id', merchantIds]
-                        }
-                      }
-                    }
-                  },
-                  0
-                ]
-              }
-            }
-          }] : []),
-  
-        // Always filter out categories with no items
+        // Filter out categories with no items after merchant filtering
         {
           $match: {
             'canonicalItems.0': { $exists: true }
@@ -311,11 +254,24 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
             return res.status(400).json({ error: 'No valid ObjectIds provided' });
         }
 
+        // Get category filters
+        const categories = req.query.categories ? 
+            req.query.categories.split(',').map(c => c.trim()) : 
+            VALID_CATEGORIES;
+      
+        const filteredCategories = categories.filter(cat => VALID_CATEGORIES.includes(cat));
+
+        // Get merchant filters
+        let merchantIds = req.query.merchantIds ? 
+            req.query.merchantIds.split(',').map(id => parseInt(id.trim())) : 
+            null;
+
         // Base pipeline for both data and metadata
         const basePipeline = [
             {
                 $match: {
-                    _id: { $in: validObjectIds }
+                    _id: { $in: validObjectIds },
+                    cat: { $in: filteredCategories }
                 }
             },
             
@@ -364,7 +320,8 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
                                 pipeline: [
                                     {
                                         $match: {
-                                            $expr: { $eq: ['$item_id', '$$itemId'] }
+                                            $expr: { $eq: ['$item_id', '$$itemId'] },
+                                            ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
                                         }
                                     },
                                     {
@@ -381,7 +338,16 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
                                             cutout_image_url: 1,
                                             discount: 1,
                                             valid_from: 1,
-                                            valid_to: 1
+                                            valid_to: 1,
+                                            pre_price_text: 1,
+                                            price_text: 1,
+                                            unit_pricing: 1,
+                                            unit_size: 1,
+                                            unit: 1,
+                                            image_url: 1,
+                                            flyer_id: 1,
+                                            flyer_item_id: 1,
+                                            flyer_page_number: 1
                                         }
                                     },
                                     {
@@ -463,7 +429,9 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
                     avgItemsPerCategory: 0
                 }),
                 query: {
-                    ids
+                    ids,
+                    categories: filteredCategories,
+                    merchantIds: merchantIds || null
                 }
             },
             data: result[0].data

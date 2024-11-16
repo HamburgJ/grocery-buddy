@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { formatPrice } from '../utils/priceUtils';
 
 export const CategoryModal = ({ category, isOpen, onClose }) => {
   const [sortConfig, setSortConfig] = useState({ field: 'price', direction: 'asc' });
@@ -36,7 +37,7 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center">
       <div className="bg-white rounded-lg w-full max-w-4xl max-h-[90vh] flex flex-col m-4">
         <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-lg font-semibold">{category.name}</h2>
@@ -104,7 +105,7 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
                       <p className={`font-medium ${
                         isLowestPrice ? 'text-green-700' : 'text-gray-900'
                       }`}>
-                        ${item.originalItem.current_price}
+                        {formatPrice(item.originalItem)}
                       </p>
                       {item.originalItem.price !== item.originalItem.current_price && (
                         <p className="text-sm text-gray-500 line-through">

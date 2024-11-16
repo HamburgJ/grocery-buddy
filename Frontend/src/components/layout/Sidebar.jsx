@@ -1,18 +1,33 @@
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useMerchants } from '../../contexts/MerchantContext';
+import { useFilters } from '../../contexts/FilterContext';
 
 export const Sidebar = ({ 
   isOpen, 
   onClose, 
-  categories, 
-  selectedCategories, 
-  onCategoryChange,
+  categories,
   onApplyFilters,
-  selectedMerchants = [],
-  onMerchantChange
+  showMerchantFilters = true
 }) => {
   const { merchants } = useMerchants();
-  
+  const { filters, updateFilters } = useFilters();
+
+  const handleCategoryChange = (category) => {
+    const newCategories = filters.categories.includes(category)
+      ? filters.categories.filter(c => c !== category)
+      : [...filters.categories, category];
+    updateFilters({ categories: newCategories });
+  };
+
+  const handleMerchantChange = (merchantId) => {
+    const newMerchants = filters.merchants.includes(merchantId)
+      ? filters.merchants.filter(id => id !== merchantId)
+      : [...filters.merchants, merchantId];
+    if (newMerchants.length > 0) {
+      updateFilters({ merchants: newMerchants });
+    }
+  };
+
   return (
     <div className={`
       fixed inset-y-0 right-0 w-72 bg-white shadow-lg transform transition-transform duration-300 z-[60]
@@ -25,47 +40,51 @@ export const Sidebar = ({
             <X size={20} />
           </button>
         </div>
-          <div className="mb-6">
-            <h4 className="text-lg font-medium mb-4">Categories</h4>
-            <div className="space-y-2">
-              {categories?.map(category => (
-                <label key={category} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.includes(category)}
-                    onChange={() => onCategoryChange(category)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <span className="text-sm text-gray-700">{category}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-          <div className="xl:hidden mb-6">
-            <h4 className="text-lg font-medium mb-4">Selected Stores</h4>
-            <div className="space-y-2">
-              {merchants.map(merchant => (
-                <label key={merchant._id} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedMerchants.includes(merchant._id)}
-                    onChange={() => onMerchantChange(merchant._id)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={merchant.logo_url}
-                      alt=""
-                      className="w-6 h-6 object-contain"
-                    />
-                    <span className="text-sm text-gray-700">{merchant.name}</span>
-                  </div>
-                </label>
-              ))}
-            </div>
+        
+        <div className="mb-6">
+          <h4 className="text-lg font-medium mb-4">Categories</h4>
+          <div className="space-y-2">
+            {categories?.map(category => (
+              <label key={category} className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={filters.categories.includes(category)}
+                  onChange={() => handleCategoryChange(category)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <span className="text-sm text-gray-700">{category}</span>
+              </label>
+            ))}
           </div>
         </div>
+
+        {showMerchantFilters && (
+          <div className="flex-1 overflow-y-auto">
+            <div className="xl:hidden mb-6">
+              <h4 className="text-lg font-medium mb-4">Selected Stores</h4>
+              <div className="space-y-2">
+                {merchants.map(merchant => (
+                  <label key={merchant.merchant_id} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filters.merchants.includes(merchant.merchant_id)}
+                      onChange={() => handleMerchantChange(merchant.merchant_id)}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={merchant.logo_url}
+                        alt=""
+                        className="w-6 h-6 object-contain"
+                      />
+                      <span className="text-sm text-gray-700">{merchant.name}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         <button
           onClick={onApplyFilters}

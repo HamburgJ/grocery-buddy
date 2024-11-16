@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Search as SearchIcon, Heart, Tag, Home, ShoppingBasket, Menu } from 'lucide-react';
 import { useFavorites } from '../../contexts/FavoritesContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const LOGO_EMOJIS = "🍎🥕🥛🥩🥫";
 
@@ -24,6 +24,12 @@ const NavLink = ({ to, icon, label }) => {
 export const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { favorites } = useFavorites();
+  const location = useLocation();
+
+  // Add effect to close menu on route change
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location]);
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -80,7 +86,6 @@ export const Navbar = () => {
         <div className={`${isMenuOpen ? 'block' : 'hidden'} lg:hidden border-t ml-auto`}>
           <div className="px-2 pt-2 pb-3 space-y-1 bg-white shadow-lg">
             <MobileNavLink to="/" label="Home" icon={<Home size={18} />} />
-            <MobileNavLink to="/deals" label="Deals" icon={<Tag size={18} />} />
             <MobileNavLink to="/search" label="Search" icon={<SearchIcon size={18} />} />
             <MobileNavLink 
               to="/favorites" 

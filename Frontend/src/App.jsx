@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { initGA, logPageView } from './services/analytics';
 import { Layout } from './components/layout/Layout';
 import { MerchantProvider } from './contexts/MerchantContext';
+import { FilterProvider } from './contexts/FilterContext';
 import AppRoutes from './routes';
 
 function App() {
@@ -18,11 +19,13 @@ function App() {
   }, [location]);
 
   return (
-    <MerchantProvider>
-      <Layout>
-        <AppRoutes />
-      </Layout>
-    </MerchantProvider>
+    <FilterProvider>
+      <MerchantProvider>
+        <Layout>
+          <AppRoutes />
+        </Layout>
+      </MerchantProvider>
+    </FilterProvider>
   );
 }
 

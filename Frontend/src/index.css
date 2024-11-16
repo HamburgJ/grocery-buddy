@@ -6,6 +6,26 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background-primary: 255 255 255;
+    --background-secondary: 249 250 251;
+    --background-elevated: 255 255 255;
+    --content-primary: 17 24 39;
+    --content-secondary: 107 114 128;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background-primary: 17 24 39;
+      --background-secondary: 31 41 55;
+      --background-elevated: 55 65 81;
+      --content-primary: 243 244 246;
+      --content-secondary: 209 213 219;
+    }
+  }
+}
+
 /* Custom font classes */
 .font-logo {
   font-family: 'Inconsolata', monospace;

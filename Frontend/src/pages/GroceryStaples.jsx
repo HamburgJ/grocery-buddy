@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react';
 import { env } from '../config/environment';
 import { CategoryCard } from '../components/CategoryCard';
+import { useFilters } from '../contexts/FilterContext';
 
 const GroceryStaples = () => {
   const [staples, setStaples] = useState({ data: [], metadata: {} });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { filters } = useFilters();
 
   useEffect(() => {
     const fetchStaples = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${env.API_URL}/staples`);
+        const params = new URLSearchParams();
+        if (filters.merchants?.length) {
+          params.append('merchants', filters.merchants.join(','));
+        }
+
+        const response = await fetch(`${env.API_URL}/staples?${params}`);
         if (!response.ok) throw new Error('Failed to fetch staples');
         const data = await response.json();
         setStaples(data);
@@ -24,7 +31,7 @@ const GroceryStaples = () => {
     };
 
     fetchStaples();
-  }, []);
+  }, [filters.merchants]);
 
   if (loading) {
     return (

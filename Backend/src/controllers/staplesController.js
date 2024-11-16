@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 exports.getStaples = async (req, res) => {
   try {
     console.log('Getting staple categories');
+    const merchantIds = req.query.merchants ? 
+      req.query.merchants.split(',').map(id => parseInt(id.trim())) : 
+      null;
 
     const COMMON_GROCERY_ITEMS = [
       "eggs", "milk", "bread", "cheese", "chicken breast",
@@ -131,7 +134,8 @@ exports.getStaples = async (req, res) => {
                 pipeline: [
                   {
                     $match: {
-                      $expr: { $eq: ['$item_id', '$$itemId'] }
+                      $expr: { $eq: ['$item_id', '$$itemId'] },
+                      ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
                     }
                   },
                   {
@@ -146,10 +150,18 @@ exports.getStaples = async (req, res) => {
                       sale_story: 1,
                       brand: 1,
                       cutout_image_url: 1,
-                      sale_story: 1,
                       discount: 1,
                       valid_from: 1,
-                      valid_to: 1
+                      valid_to: 1,
+                      pre_price_text: 1,
+                      price_text: 1,
+                      unit_pricing: 1,
+                      unit_size: 1,
+                      unit: 1,
+                      image_url: 1,
+                      flyer_id: 1,
+                      flyer_item_id: 1,
+                      flyer_page_number: 1
                     }
                   },
                   {
@@ -229,7 +241,8 @@ exports.getStaples = async (req, res) => {
           avgItemsPerCategory: 0
         }),
         query: {
-          searchTerms: COMMON_GROCERY_ITEMS
+          searchTerms: COMMON_GROCERY_ITEMS,
+          merchantIds: merchantIds || null
         }
       },
       data: result[0].data
