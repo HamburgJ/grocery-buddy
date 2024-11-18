@@ -62,6 +62,7 @@ postal_codes = ['N2G4G7', 'M5R2E3', 'N2L3G1', 'K7L3N6']
 
 class NightlyScraper:
     def __init__(self):
+        self.debug = False  # Add debug flag
         loop = asyncio.get_event_loop()
         if loop.is_closed():
             loop = asyncio.new_event_loop()
@@ -192,6 +193,10 @@ class NightlyScraper:
             items = get_flyer_items(flyer_data['flyer_id'], postal_code)
             
             for item in items:
+                # Skip non-broccoli items in debug mode
+                if self.debug and 'broccoli' not in item.get('name', '').lower():
+                    continue
+                    
                 if item['id'] in existing_item_ids:
                     continue
                     
@@ -267,6 +272,10 @@ class NightlyScraper:
             if not canonical_category.categories:
                 continue
             
+            # Skip non-broccoli categories in debug mode
+            if self.debug and not any('broccoli' in cat.lower() for cat in canonical_category.categories):
+                continue
+
             for category_name in canonical_category.categories:
                 # Group by postal code to minimize API calls
                 for postal_code in set(flyer_postal_codes.values()):
@@ -381,7 +390,7 @@ class NightlyScraper:
                         for c in relevant_categories
                     ], key=lambda x: x[1], reverse=True)
                     
-                    if closest_matches and closest_matches[0][1] > 0.8:
+                    if closest_matches and closest_matches[0][1] > 0.5:
                         canonical_items_to_create.append(
                             CanonicalItem(
                                 item_id=item.item_id,
@@ -399,7 +408,7 @@ class NightlyScraper:
                     for c in relevant_categories
                 ], key=lambda x: x[1], reverse=True)
                 
-                category_name = closest_matches[0][0].name if closest_matches and closest_matches[0][1] > 0.8 else None
+                category_name = closest_matches[0][0].name if closest_matches else None
                 
                 canonical_items_to_create.append(
                     CanonicalItem(
@@ -539,6 +548,7 @@ class NightlyScraper:
     async def run_async(self):
         """Run the nightly scraper asynchronously"""
         print("Starting nightly scrape...")
+        print(f"Debug mode: {self.debug}")
         #return
         start_time = datetime.now()
         
