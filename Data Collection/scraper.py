@@ -9,7 +9,7 @@ import re
 import nltk
 from db_updater import DBUpdater
 from nltk.stem import WordNetLemmatizer
-from constants import *
+from .constants import *
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.spatial.distance import cosine
 
