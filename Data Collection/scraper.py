@@ -11,7 +11,8 @@ from db_updater import DBUpdater
 from nltk.stem import WordNetLemmatizer
 import os
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
 from constants import *
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.spatial.distance import cosine
