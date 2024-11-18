@@ -13,11 +13,13 @@ class Flyers(Document):
     flyer_id: int
     merchant_id: int  # renamed retailer_id to merchant_id
     postal_code: str
+    scraped: bool = False
     valid_from: Optional[datetime] = None
     valid_to: Optional[datetime] = None
     available_from: Optional[datetime] = None
     available_to: Optional[datetime] = None
     categories_csv: Optional[str] = None
+    postal_code: Optional[str] = None
 
     class Settings:
         arbitrary_types_allowed = True
@@ -88,13 +90,17 @@ class Items(Document):
     cutout_image_url: Optional[str] = None
     brand: Optional[str] = None
     image_url: Optional[str] = None
+    categories: List[str] = []
 
     class Settings:
         arbitrary_types_allowed = True
         indexes = [
             IndexModel([("item_id", ASCENDING)], unique=True),  # Keep existing unique index
             IndexModel([("flyer_id", ASCENDING)], background=True),  # Optional: if you query by flyer_id
-            IndexModel([("merchant_id", ASCENDING)], background=True)  # Optional: if you query by merchant_id
+            IndexModel([("merchant_id", ASCENDING)], background=True),  # Optional: if you query by merchant_id
+            IndexModel([("categories", ASCENDING)], background=True),  # Add index for categories
+            IndexModel([("valid_from", ASCENDING)], background=True),
+            IndexModel([("valid_to", ASCENDING)], background=True)
         ]
 
 

@@ -159,7 +159,6 @@ class NightlyScraper:
             await scraper.save()
 
     async def process_flyer_items(self, postal_code: str) -> List[Items]:
-        """Process all items from the given flyers using aggregation pipeline"""
         print(f"Processing flyer items for {postal_code}...")
         
         # Get unprocessed flyers and their items in one query
@@ -182,54 +181,72 @@ class NightlyScraper:
         flyer_results = await Flyers.aggregate(pipeline).to_list()
         all_new_items = []
         
+        # Create a dictionary to track unique items across all flyers
+        # Key: (merchant_id, name, price)
+        unique_items_dict = {}
+        
         for flyer_data in flyer_results:
             existing_item_ids = {item['item_id'] for item in flyer_data['existing_items']}
             
             # Get items from flyer API
             items = get_flyer_items(flyer_data['flyer_id'], postal_code)
-            new_items = [
-                Items(
-                    item_id=item['id'],
-                    flyer_id=flyer_data['flyer_id'], 
-                    merchant_id=flyer_data['merchant_id'],
-                    name=item.get('name', ''),
-                    description=item.get('description', ''),
-                    price=item.get('price', ''),
-                    discount=item.get('discount', ''),
-                    valid_from=item.get('valid_from', ''),
-                    valid_to=item.get('valid_to', ''),
-                    cutout_image_url=item.get('cutout_image_url', ''),
-                    brand=item.get('brand', ''),
-                    categories=[]
+            
+            for item in items:
+                if item['id'] in existing_item_ids:
+                    continue
+                    
+                # Create unique key based on merchant, name, and price
+                key = (
+                    flyer_data['merchant_id'],
+                    item.get('name', '').lower().strip(),
+                    item.get('price', '')
                 )
-                for item in items
-                if item['id'] not in existing_item_ids
+                
+                # Only keep the first occurrence of a duplicate item
+                if key not in unique_items_dict:
+                    unique_items_dict[key] = Items(
+                        item_id=item['id'],
+                        flyer_id=flyer_data['flyer_id'],
+                        merchant_id=flyer_data['merchant_id'],
+                        name=item.get('name', ''),
+                        description=item.get('description', ''),
+                        price=item.get('price', ''),
+                        discount=item.get('discount', ''),
+                        valid_from=item.get('valid_from', ''),
+                        valid_to=item.get('valid_to', ''),
+                        cutout_image_url=item.get('cutout_image_url', ''),
+                        brand=item.get('brand', ''),
+                        categories=[]
+                    )
+        
+        # Convert unique items dictionary to list
+        new_items = list(unique_items_dict.values())
+        
+        if new_items:
+            # Update this line to only pass item_id
+            item_details = [get_item_info(item.item_id) for item in new_items]
+            
+            # Update items with details
+            fields = [
+                'brand', 'name', 'image_url', 'cutout_image_url', 'description', 'current_price',
+                'current_price_range', 'pre_price_text', 'category', 'price_text', 'sale_story',
+                'sku', 'ttm_url'
             ]
             
-            if new_items:
-                # Update this line to only pass item_id
-                item_details = [get_item_info(item.item_id) for item in new_items]
-                
-                # Update items with details
-                fields = [
-                    'brand', 'name', 'image_url', 'cutout_image_url', 'description', 'current_price',
-                    'current_price_range', 'pre_price_text', 'category', 'price_text', 'sale_story',
-                    'sku', 'ttm_url'
-                ]
-                
-                for item, details in zip(new_items, item_details):
-                    for field in fields:
-                        setattr(item, field, details.get(field))
-                        
-                await Items.insert_many(new_items)
-                all_new_items.extend(new_items)
-                
-            # Mark flyer as scraped
+            for item, details in zip(new_items, item_details):
+                for field in fields:
+                    setattr(item, field, details.get(field))
+                    
+            await Items.insert_many(new_items)
+            all_new_items.extend(new_items)
+        
+        # Mark all flyers as scraped
+        for flyer_data in flyer_results:
             await Flyers.find_one({"_id": flyer_data['_id']}).update({"$set": {"scraped": True}})
 
         return all_new_items
 
-    async def fetch_category_items(self, new_item_ids: List[str], new_items: List[Items]):
+    async def fetch_category_items(self, new_item_ids: List[str]):
         """Fetch category items only for new items found in this scrape"""
         print("Fetching category items...")
         
@@ -237,7 +254,8 @@ class NightlyScraper:
         canonical_categories = await CanonicalCategory.find_all().to_list()
         
         # Get all new items with their flyer postal codes
-        flyer_ids = {item.flyer_id for item in new_items}
+        items = await Items.find({"item_id": {"$in": new_item_ids}}).to_list()
+        flyer_ids = {item.flyer_id for item in items}
         flyers = await Flyers.find({"flyer_id": {"$in": list(flyer_ids)}}).to_list()
         flyer_postal_codes = {flyer.flyer_id: flyer.postal_code for flyer in flyers}
         
@@ -293,16 +311,19 @@ class NightlyScraper:
         
         return filtered_items
 
-    async def create_and_process_canonical_items(self, new_items: List[Items]):
+    async def create_and_process_canonical_items(self, item_ids: List[str]):
         """Create and process canonical items for new items only"""
         print("Creating and processing canonical items...")
+        
+        # Get all items from database
+        items = await Items.find({"item_id": {"$in": item_ids}}).to_list()
         
         # Get all canonical categories for reference
         canonical_categories = await CanonicalCategory.find_all().to_list()
         
-        # Process each new item
+        # Process each item
         canonical_items_to_create = []
-        for item in new_items:
+        for item in items:
             # Skip if canonical item already exists or if item has null/empty price or name
             if (await CanonicalItem.find_one({"item_id": item.item_id}) or
                 not item.price or item.price == "" or
@@ -518,7 +539,7 @@ class NightlyScraper:
     async def run_async(self):
         """Run the nightly scraper asynchronously"""
         print("Starting nightly scrape...")
-        return
+        #return
         start_time = datetime.now()
         
         # 1. Get new flyers
@@ -535,8 +556,7 @@ class NightlyScraper:
         
         # 3. Fetch categories for only the new items and get filtered list
         filtered_items = await self.fetch_category_items(
-            [item.item_id for item in all_new_items],
-            all_new_items
+            [item.item_id for item in all_new_items]
         )
         
         # 4. Create canonical items with filtered list
