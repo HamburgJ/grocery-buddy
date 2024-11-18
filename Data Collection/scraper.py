@@ -58,7 +58,7 @@ def parse_items_from_multiple_names(names):
 # Ensure the WordNet data is downloaded for lemmatization
 nltk.download('wordnet')
 nltk.download('omw-1.4')
-postal_codes = ['K1P1J1', 'M5R2E3', 'N2L3G1', 'K7L3N6']
+postal_codes = ['N2G4G7', 'M5R2E3', 'N2L3G1', 'K7L3N6']
 
 class NightlyScraper:
     def __init__(self):
@@ -286,9 +286,9 @@ class NightlyScraper:
             print(f"Deleted {len(items_to_delete)} items that weren't found in any category")
             
             # Filter out deleted items from new_items list
-            filtered_items = [item for item in new_items if item.item_id not in items_to_delete]
+            filtered_items = [item for item in new_item_ids if item not in items_to_delete]
         else:
-            filtered_items = new_items
+            filtered_items = new_item_ids
 
         # Update database first
         updates = []
@@ -305,9 +305,9 @@ class NightlyScraper:
             await asyncio.gather(*updates)
             print(f"Updated categories for {len(updates)} items")
                 
-            for item in filtered_items:
-                if item.item_id in item_categories:
-                    item.categories = list(item_categories[item.item_id])
+            for item_id in filtered_items:
+                if item_id in item_categories:
+                    item_categories[item_id] = list(item_categories[item_id])
         
         return filtered_items
 
