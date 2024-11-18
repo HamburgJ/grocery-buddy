@@ -49,3 +49,5 @@ yarn-error.log*
 
 # Local development
 *.local
+
+!Data Collection/constants/constants.py
