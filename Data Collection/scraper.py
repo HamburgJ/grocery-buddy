@@ -9,7 +9,10 @@ import re
 import nltk
 from db_updater import DBUpdater
 from nltk.stem import WordNetLemmatizer
-from .constants import *
+import os
+import sys
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from constants import *
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.spatial.distance import cosine
 
