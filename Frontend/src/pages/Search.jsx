@@ -62,6 +62,7 @@ const Search = () => {
     setSearchParams(newParams);
   };
 
+  console.log('categories', categories);
   return (
     <div className="container mx-auto px-4">
       <SearchHeader

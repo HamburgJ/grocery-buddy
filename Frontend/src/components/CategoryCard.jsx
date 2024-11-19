@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Star, StarOff, X } from 'lucide-react';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { ItemView } from './ItemView';
-import { formatPrice } from '../utils/priceUtils';
+import { formatPrice, getPriceValue } from '../utils/priceUtils';
 
 export const CategoryCard = ({ category }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,7 +12,7 @@ export const CategoryCard = ({ category }) => {
   const isFavorite = favorites.includes(category._id);
 
   // Filter out items without originalItem first
-  const validItems = category.canonicalItems.filter(item => item.originalItem);
+  const validItems = category.canonicalItems;
   console.log('category', category);
   
   // Only proceed with sorting if we have valid items
@@ -22,22 +22,28 @@ export const CategoryCard = ({ category }) => {
   
   // Sort items by price before getting mainItem and secondaryItems
   const sortedItems = [...validItems].sort((a, b) => 
-    a.originalItem.price - b.originalItem.price
+    getPriceValue(a, category.name, category.cat) - getPriceValue(b, category.name, category.cat)
   );
   
   const mainItem = sortedItems[0].originalItem;
-  const secondaryItems = sortedItems.map(item => item.originalItem);
+  const secondaryItems = sortedItems.slice(1).map(item => item.originalItem);
   
   // Update price calculations to use validItems
-  const sortedPrices = [...new Set(validItems.map(i => i.originalItem.price))].sort((a, b) => a - b);
+  const sortedPrices = [...new Set(validItems.map(i => 
+    getPriceValue(i, category.name, category.cat)
+  ))].sort((a, b) => a - b);
+  
   const bestPrice = sortedPrices[0];
   const worstPrice = sortedPrices[sortedPrices.length - 1];
+  console.log('validItems', validItems);
   const bestDeals = validItems
-    .filter(i => i.originalItem.price === bestPrice)
+    .filter(i => getPriceValue(i, category.name, category.cat) === bestPrice)
     .map(i => i.originalItem)
     .filter((item, index, self) => 
-      index === self.findIndex(t => t.merchant.name === item.merchant.name)
+      index === self.findIndex(t => t.merchant?.name === item.merchant?.name)
     );
+
+
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -59,8 +65,8 @@ export const CategoryCard = ({ category }) => {
 
   const sortItems = (items) => {
     return [...items].filter(item => item.originalItem).sort((a, b) => {
-      const aValue = a.originalItem[sortConfig.field];
-      const bValue = b.originalItem[sortConfig.field];
+      const aValue = sortConfig.field === 'price' ? a.price : a.originalItem[sortConfig.field];
+      const bValue = sortConfig.field === 'price' ? b.price : b.originalItem[sortConfig.field];
       return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
     });
   };
@@ -124,17 +130,25 @@ export const CategoryCard = ({ category }) => {
               
               {/* Price information */}
               <div>
-                <div className="inline-block bg-green-50 px-1.5 py-0.5 rounded">
-                  <span className="text-sm font-bold text-green-700">{formatPrice(bestDeals[0])}</span>
-                  <span className="text-xs text-green-600 ml-1">
-                    at {bestDeals.map(d => d.merchant.name).join(' or ')}
-                  </span>
-                </div>
-                
-                {bestPrice !== worstPrice && (
-                  <p className="text-xs text-gray-600 mt-1">
-                    Other prices: {formatPrice(validItems.find(i => i.originalItem.price === sortedPrices[1])?.originalItem)} - {formatPrice(validItems.find(i => i.originalItem.price === worstPrice)?.originalItem)}
-                  </p>
+                {bestDeals?.length > 0 ? (
+                  <>
+                    <div className="inline-block bg-green-50 px-1.5 py-0.5 rounded">
+                      <span className="text-sm font-bold text-green-700">
+                        {formatPrice(bestDeals[0])}
+                      </span>
+                      <span className="text-xs text-green-600 ml-1">
+                        at {bestDeals.map(d => d.merchant?.name).join(' or ')}
+                      </span>
+                    </div>
+                    
+                    {bestPrice !== worstPrice && (
+                      <p className="text-xs text-gray-600 mt-1">
+                        Other prices: {formatPrice(validItems.find(i => getPriceValue(i, category.name, category.cat) === sortedPrices[1]))} - {formatPrice(validItems.find(i => getPriceValue(i, category.name, category.cat) === worstPrice))}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-xs text-gray-500">No price information available</p>
                 )}
               </div>
             </div>
@@ -188,8 +202,6 @@ export const CategoryCard = ({ category }) => {
                 >
                   <option value="price-asc">Price: Low to High</option>
                   <option value="price-desc">Price: High to Low</option>
-                  <option value="current_price-asc">Current Price: Low to High</option>
-                  <option value="current_price-desc">Current Price: High to Low</option>
                 </select>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -212,7 +224,7 @@ export const CategoryCard = ({ category }) => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {sortItems(validItems).map(item => {
-                    const isLowestPrice = item.originalItem.current_price === bestPrice;
+                    const isLowestPrice = item.price === bestPrice;
                     return (
                       <tr 
                         key={item.item_id}
@@ -250,11 +262,6 @@ export const CategoryCard = ({ category }) => {
                           }`}>
                             {formatPrice(item.originalItem)}
                           </p>
-                          {item.originalItem.price !== item.originalItem.current_price && (
-                            <p className="text-sm text-gray-500 line-through">
-                              {formatPrice(item.originalItem)}
-                            </p>
-                          )}
                           {item.originalItem.discount && (
                             <p className="text-xs text-red-600">Save {item.originalItem.discount}%</p>
                           )}

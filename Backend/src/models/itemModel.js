@@ -19,9 +19,11 @@ const itemSchema = new mongoose.Schema({
     valid_to: { type: Date },
     cutout_image_url: { type: String },
     brand: { type: String },
-    image_url: { type: String }
+    image_url: { type: String },
+    categories: [{ type: String }]
 }, { timestamps: true });
 
 itemSchema.index({ item_id: 1 }, { unique: true });
+itemSchema.index({ categories: 1 });
 
 module.exports = mongoose.model('Item', itemSchema, 'Items');

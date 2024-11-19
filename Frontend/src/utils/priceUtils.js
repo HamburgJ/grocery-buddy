@@ -37,16 +37,50 @@ const processText = (text, replacements) => {
     return text;
 }
 
+export const getPriceValue = (item, categoryName, cat) => {
+  // Special cases where we want to prioritize weight-based pricing
+  const weightPriorityCategories = ['Meat & Seafood'];
+  const weightPriorityItems = ['grapes', 'grapes red', 'apples'];
+  
+  // Check if this item/category should prioritize weight-based pricing
+  const shouldPrioritizeWeight = 
+    weightPriorityCategories.includes(cat) ||
+    weightPriorityItems.includes(categoryName);
+
+  // If weight should be prioritized, or item is sold by weight (not 'each')
+  // Return actual price value
+  if (shouldPrioritizeWeight) {
+    return item.price + (item.unit == 'each' ? 100000 : 0);
+  }
+  
+  // For items sold by 'each', artificially lower their price value
+  // to ensure they appear after weight-based items in sorting
+  return item.price + (item.unit == 'each' ? 0 : 100000);
+};
+
+// Update existing formatPrice function to handle unit display
 export const formatPrice = (item) => {
-    let result = '';
-    if (item.pre_price_text ) {
-        const prePriceText = processText(item.pre_price_text, PRE_PRICE_REPLACEMENTS);
-        if (prePriceText) result += prePriceText + ' ';
-    }
-    result += `$${priceToText(item.current_price)}`;
-    if (item.price_text) {
-        const postPriceText = processText(item.price_text, POST_PRICE_REPLACEMENTS);
-        if (postPriceText) result += ' ' + postPriceText;
-    }
-    return result;
+  // Return placeholder if item is undefined
+  if (!item) return 'N/A';
+  
+  // If we're dealing with a canonical item that has originalItem, use that
+  const itemData = item.originalItem || item;
+  
+  let result = '';
+  // Only access properties if they exist
+  if (itemData.pre_price_text) {
+    const prePriceText = processText(itemData.pre_price_text, PRE_PRICE_REPLACEMENTS);
+    if (prePriceText) result += prePriceText + ' ';
+  }
+  
+  // Ensure current_price exists
+  if (itemData.current_price) {
+    result += `$${priceToText(itemData.current_price)}`;
+  }
+  
+  if (itemData.price_text) {
+    const postPriceText = processText(itemData.price_text, POST_PRICE_REPLACEMENTS);
+    if (postPriceText) result += ' ' + postPriceText;
+  }
+  return result;
 }; 

@@ -10,10 +10,12 @@ exports.getStaples = async (req, res) => {
       null;
 
     const COMMON_GROCERY_ITEMS = [
-      "eggs", "milk", "bread", "cheese", "chicken breast",
+      "eggs", "milk", "bread", "cheese", "chicken breast", "grapes", "grapes red",
       "bananas", "apples", "carrots", "broccoli", "potatoes",
       "rice", "pasta", "cereal", "yogurt", "butter",
-      "onions", "tomatoes", "ground beef", "lettuce", "orange juice"
+      "onions", "tomatoes", "ground beef", "lettuce", "orange juice", "avocados",  
+      "oranges", "cilantro", "cucumber", "cola", "cauliflower", "beans", "salmon", "pork", "cookies",
+      "peanut butter"
     ];
 
     // Search for canonical categories matching these items
@@ -116,18 +118,6 @@ exports.getStaples = async (req, res) => {
               }
             },
             {
-              $project: {
-                item_id: 1,
-                flyer_id: 1,
-                canonical_category: 1,
-                name: 1,
-                price: 1,
-                value: 1,
-                size: 1,
-                unit: 1
-              }
-            },
-            {
               $lookup: {
                 from: 'Items',
                 let: { itemId: '$item_id' },
@@ -136,6 +126,31 @@ exports.getStaples = async (req, res) => {
                     $match: {
                       $expr: { $eq: ['$item_id', '$$itemId'] },
                       ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'Flyers',
+                      let: { flyerId: '$flyer_id' },
+                      pipeline: [
+                        {
+                          $match: {
+                            $expr: {
+                              $and: [
+                                { $eq: ['$flyer_id', '$$flyerId'] },
+                                { $lte: [{ $dateFromString: { dateString: '$valid_from' } }, new Date()] },
+                                { $gte: [{ $dateFromString: { dateString: '$valid_to' } }, new Date()] }
+                              ]
+                            }
+                          }
+                        }
+                      ],
+                      as: 'currentFlyer'
+                    }
+                  },
+                  {
+                    $match: {
+                      'currentFlyer.0': { $exists: true }
                     }
                   },
                   {
@@ -201,6 +216,11 @@ exports.getStaples = async (req, res) => {
               $unwind: {
                 path: '$originalItem',
                 preserveNullAndEmptyArrays: true
+              }
+            },
+            {
+              $match: {
+                originalItem: { $exists: true }
               }
             }
           ],

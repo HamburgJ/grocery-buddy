@@ -11,11 +11,11 @@ export const ListCard = ({ category, isExpanded }) => {
   const isFavorite = favorites.includes(category._id);
   
   const mainItem = category.canonicalItems[0].originalItem;
-  const bestPrice = Math.min(...category.canonicalItems.map(i => i.originalItem.current_price));
-  const worstPrice = Math.max(...category.canonicalItems.map(i => i.originalItem.current_price));
+  const bestPrice = Math.min(...category.canonicalItems.map(i => i.price));
+  const worstPrice = Math.max(...category.canonicalItems.map(i => i.price));
   
   const sortedItems = [...category.canonicalItems].sort((a, b) => 
-    a.originalItem.current_price - b.originalItem.current_price
+    a.price - b.price
   );
 
   const displayItems = sortedItems.slice(0, 5);
@@ -91,7 +91,7 @@ export const ListCard = ({ category, isExpanded }) => {
             <table className="w-full">
               <tbody>
                 {displayItems.map(item => {
-                  const isLowestPrice = item.originalItem.current_price === bestPrice;
+                  const isLowestPrice = item.price === bestPrice;
                   return (
                     <tr 
                       key={item.originalItem.item_id}
@@ -106,9 +106,6 @@ export const ListCard = ({ category, isExpanded }) => {
                         <div className={`${isLowestPrice ? 'text-green-700 font-medium' : 'text-gray-900'}`}>
                           {formatPrice(item.originalItem)}
                         </div>
-                        {item.originalItem.price !== item.originalItem.current_price && (
-                          <div className="text-gray-500 line-through">${item.originalItem.price}</div>
-                        )}
                       </td>
                       <td className="py-1.5 px-2">
                         <div className={`${isLowestPrice ? 'text-green-700' : 'text-gray-900'}`}>

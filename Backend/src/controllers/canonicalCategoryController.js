@@ -5,6 +5,93 @@ const CanonicalCategory = require('../models/canonicalCategoryModel');
 const mongoose = require('mongoose');
 const VALID_CATEGORIES = ['Pantry', 'Deli', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen'];
 
+// Add this lookup stage to both controller methods where we lookup Items
+const getItemsLookupPipeline = (merchantIds) => [
+  {
+    $lookup: {
+      from: 'Items',
+      let: { itemId: '$item_id' },
+      pipeline: [
+        {
+          $match: {
+            $expr: { $eq: ['$item_id', '$$itemId'] },
+            ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
+          }
+        },
+        // Add merchant lookup
+        {
+          $lookup: {
+            from: 'Merchants',
+            let: { merchantId: '$merchant_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$merchant_id', '$$merchantId'] }
+                }
+              }
+            ],
+            as: 'merchant'
+          }
+        },
+        // Unwind merchant array to single object
+        {
+          $unwind: {
+            path: '$merchant',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        // Add flyer lookup
+        {
+          $lookup: {
+            from: 'Flyers',
+            let: { flyerId: '$flyer_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ['$flyer_id', '$$flyerId'] },
+                      { $lte: [{ $dateFromString: { dateString: '$valid_from' } }, new Date()] },
+                      { $gte: [{ $dateFromString: { dateString: '$valid_to' } }, new Date()] }
+                    ]
+                  }
+                }
+              }
+            ],
+            as: 'currentFlyer'
+          }
+        },
+        // Only keep items with valid flyers
+        {
+          $match: {
+            'currentFlyer.0': { $exists: true }
+          }
+        },
+        // Rest of your existing item fields projection
+      ],
+      as: 'originalItem'
+    }
+  },
+  // Unwind originalItem array to single object
+  {
+    $unwind: {
+      path: '$originalItem',
+      preserveNullAndEmptyArrays: true
+    }
+  },
+  // Filter out canonical items with no valid original items
+  {
+    $match: {
+      originalItem: { $exists: true }
+    }
+  },
+  {
+    $sort: {
+      'price': 1  // Sort by price ascending
+    }
+  }
+];
+
 exports.getCanonicalCategories = async (req, res) => {
     try {
       console.log('Getting canonical categories');
@@ -47,14 +134,13 @@ exports.getCanonicalCategories = async (req, res) => {
             base_name: 1,
             icon_url: 1,
             is_clean: 1,
-            items: 1,
             interest: 1,
             value: 1,
             categories: 1
           }
         },
         
-        // Join with canonical items and filter by merchant
+        // Join with canonical items using the new relationship
         {
           $lookup: {
             from: 'CanonicalItem',
@@ -65,56 +151,11 @@ exports.getCanonicalCategories = async (req, res) => {
                   $expr: { $eq: ['$canonical_category', '$$categoryName'] }
                 }
               },
+              ...getItemsLookupPipeline(merchantIds),
               {
-                $lookup: {
-                  from: 'Items',
-                  let: { itemId: '$item_id' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $expr: { $eq: ['$item_id', '$$itemId'] },
-                        ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
-                      }
-                    },
-                    {
-                      $lookup: {
-                        from: 'Merchants',
-                        let: { merchantId: '$merchant_id' },
-                        pipeline: [
-                          {
-                            $match: {
-                              $expr: { $eq: ['$merchant_id', '$$merchantId'] }
-                            }
-                          },
-                          {
-                            $project: {
-                              _id: 0,
-                              name: 1,
-                              logo_url: 1,
-                              merchant_id: 1
-                            }
-                          }
-                        ],
-                        as: 'merchant'
-                      }
-                    },
-                    {
-                      $unwind: {
-                        path: '$merchant',
-                        preserveNullAndEmptyArrays: true
-                      }
-                    }
-                  ],
-                  as: 'originalItem'
+                $sort: {
+                  price: 1  // Sort canonical items by price
                 }
-              },
-              {
-                $match: {
-                  'originalItem.0': { $exists: true }
-                }
-              },
-              {
-                $unwind: '$originalItem'
               }
             ],
             as: 'canonicalItems'
@@ -283,14 +324,13 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
                     base_name: 1,
                     icon_url: 1,
                     is_clean: 1,
-                    items: 1,
                     interest: 1,
                     value: 1,
                     categories: 1
                 }
             },
             
-            // Join with canonical items
+            // Join with canonical items using the new relationship
             {
                 $lookup: {
                     from: 'CanonicalItem',
@@ -301,92 +341,10 @@ exports.getCanonicalCategoriesByIds = async (req, res) => {
                                 $expr: { $eq: ['$canonical_category', '$$categoryName'] }
                             }
                         },
+                        ...getItemsLookupPipeline(merchantIds),
                         {
-                            $project: {
-                                item_id: 1,
-                                flyer_id: 1,
-                                canonical_category: 1,
-                                name: 1,
-                                price: 1,
-                                value: 1,
-                                size: 1,
-                                unit: 1
-                            }
-                        },
-                        {
-                            $lookup: {
-                                from: 'Items',
-                                let: { itemId: '$item_id' },
-                                pipeline: [
-                                    {
-                                        $match: {
-                                            $expr: { $eq: ['$item_id', '$$itemId'] },
-                                            ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
-                                        }
-                                    },
-                                    {
-                                        $project: {
-                                            item_id: 1,
-                                            merchant_id: 1,
-                                            name: 1,
-                                            description: 1,
-                                            price: 1,
-                                            current_price: 1,
-                                            category: 1,
-                                            sale_story: 1,
-                                            brand: 1,
-                                            cutout_image_url: 1,
-                                            discount: 1,
-                                            valid_from: 1,
-                                            valid_to: 1,
-                                            pre_price_text: 1,
-                                            price_text: 1,
-                                            unit_pricing: 1,
-                                            unit_size: 1,
-                                            unit: 1,
-                                            image_url: 1,
-                                            flyer_id: 1,
-                                            flyer_item_id: 1,
-                                            flyer_page_number: 1
-                                        }
-                                    },
-                                    {
-                                        $lookup: {
-                                            from: 'Merchants',
-                                            let: { merchantId: '$merchant_id' },
-                                            pipeline: [
-                                                {
-                                                    $match: {
-                                                        $expr: { $eq: ['$merchant_id', '$$merchantId'] }
-                                                    }
-                                                },
-                                                {
-                                                    $project: {
-                                                        name: 1,
-                                                        name_identifier: 1,
-                                                        logo_url: 1,
-                                                        flyer_url: 1,
-                                                        is_active: 1
-                                                    }
-                                                }
-                                            ],
-                                            as: 'merchant'
-                                        }
-                                    },
-                                    {
-                                        $unwind: {
-                                            path: '$merchant',
-                                            preserveNullAndEmptyArrays: true
-                                        }
-                                    }
-                                ],
-                                as: 'originalItem'
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: '$originalItem',
-                                preserveNullAndEmptyArrays: true
+                            $sort: {
+                                price: 1  // Sort canonical items by price
                             }
                         }
                     ],

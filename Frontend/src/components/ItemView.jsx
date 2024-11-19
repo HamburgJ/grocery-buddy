@@ -48,11 +48,6 @@ export const ItemView = ({ item, category, onClose }) => {
                   <p className="text-2xl font-bold text-gray-900">
                     {formatPrice(item)}
                   </p>
-                  {item.price !== item.current_price && (
-                    <p className="text-gray-500 line-through">
-                      ${parseFloat(item.price).toFixed(2)}
-                    </p>
-                  )}
                   {item.discount && (
                     <p className="text-red-600 font-medium mt-1">
                       Save {item.discount}%

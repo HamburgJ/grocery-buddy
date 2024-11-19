@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { formatPrice } from '../utils/priceUtils';
+import { formatPrice, getPriceValue } from '../utils/priceUtils';
 
 export const CategoryModal = ({ category, isOpen, onClose }) => {
   const [sortConfig, setSortConfig] = useState({ field: 'price', direction: 'asc' });
   const [selectedItem, setSelectedItem] = useState(null);
   
-  const bestPrice = Math.min(...category.canonicalItems.map(i => i.originalItem.current_price));
+  const bestPrice = Math.min(...category.canonicalItems.map(i => i.price));
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -28,6 +28,11 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
 
   const sortItems = (items) => {
     return [...items].sort((a, b) => {
+      if (sortConfig.field === 'price') {
+        return sortConfig.direction === 'asc' 
+          ? getPriceValue(a, category.name, category.cat) - getPriceValue(b, category.name, category.cat)
+          : getPriceValue(b, category.name, category.cat) - getPriceValue(a, category.name, category.cat);
+      }
       const aValue = a.originalItem[sortConfig.field];
       const bValue = b.originalItem[sortConfig.field];
       return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
@@ -52,8 +57,6 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
             >
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
-              <option value="current_price-asc">Current Price: Low to High</option>
-              <option value="current_price-desc">Current Price: High to Low</option>
             </select>
             <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full">
               <X size={20} />
@@ -74,7 +77,7 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {sortItems(category.canonicalItems).map(item => {
-                  const isLowestPrice = item.originalItem.current_price === bestPrice;
+                  const isLowestPrice = item.price === bestPrice;
                   return (
                     <tr 
                       key={item.item_id}
@@ -108,11 +111,7 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
                         }`}>
                           {formatPrice(item.originalItem)}
                         </p>
-                        {item.originalItem.price !== item.originalItem.current_price && (
-                          <p className="text-sm text-gray-500 line-through">
-                            ${item.originalItem.price}
-                          </p>
-                        )}
+                       
                       </td>
                       <td className="p-3">
                         <div className="flex items-center gap-2">
