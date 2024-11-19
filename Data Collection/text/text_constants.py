@@ -1,3 +1,129 @@
+
+# Add this near the top of the file with other constants
+CATEGORY_EXCLUSIONS = {
+    # Fruits
+    # Fruits
+    'apples': ['pineapple', 'apple juice', 'apple sauce', 'crabapple', 'apple pie', 'apple turnover', 'apple muffin', 'apple cake', 'apple cider', 'apple butter', 'candy apple', 'caramel apple', 'apple chips', 'dried apple', 'apple danish', 'apple strudel'],
+    
+    'grapes': ['grapefruit', 'grape tomato', 'grape juice', 'grape leaves', 'grape jelly', 'grape soda', 'grape candy', 'grape popsicle', 'grape flavored', 'grape drink', 'grape medicine'],
+    
+    'oranges': ['orange juice', 'orange sauce', 'orange chocolate', 'orange pepper', 'orange soda', 'orange drink', 'orange candy', 'orange popsicle', 'orange cream', 'orange marmalade', 'orange chicken', 'mandarin orange', 'orange extract', 'orange zest', 'orange peel'],
+    
+    'lemons': ['lemon juice', 'lemonade', 'lemon pepper', 'lemon cake', 'lemon pie', 'lemon bar', 'lemon candy', 'lemon extract', 'lemon zest', 'lemon peel', 'lemon sauce', 'lemon chicken', 'lemon tart', 'lemon curd'],
+    
+    'berries': ['berry juice', 'berry pie', 'berry sauce', 'berry jam', 'berry smoothie', 'berry muffin', 'berry cereal', 'mixed berry', 'berry blend', 'berry flavored'],
+    
+    'strawberries': ['strawberry jam', 'strawberry juice', 'strawberry sauce', 'strawberry syrup', 'strawberry pie', 'strawberry shortcake', 'strawberry ice cream', 'strawberry milk', 'strawberry yogurt', 'strawberry candy', 'strawberry flavored'],
+    
+    'blueberries': ['blueberry muffin', 'blueberry pie', 'blueberry jam', 'blueberry sauce', 'blueberry syrup', 'blueberry yogurt', 'blueberry pancake', 'blueberry waffle'],
+    
+    'raspberries': ['raspberry jam', 'raspberry sauce', 'raspberry syrup', 'raspberry vinaigrette', 'raspberry pie', 'raspberry candy', 'raspberry tea'],
+    
+    'blackberries': ['blackberry jam', 'blackberry sauce', 'blackberry pie', 'blackberry cobbler', 'blackberry syrup'],
+    
+    'cherries': ['cherry pie', 'cherry sauce', 'cherry juice', 'cherry candy', 'cherry coke', 'maraschino cherry', 'cherry jam', 'cherry syrup', 'cherry flavored'],
+    
+    'peaches': ['peach pie', 'peach cobbler', 'peach juice', 'peach nectar', 'peach sauce', 'peach jam', 'peach yogurt', 'peach tea', 'peach candy'],
+    
+    'pears': ['pear juice', 'pear sauce', 'pear nectar', 'pear pie', 'pear candy', 'asian pear'],
+    
+    'plums': ['plum sauce', 'plum juice', 'plum wine', 'plum candy'],
+    
+    'pineapples': ['pineapple juice', 'pineapple sauce', 'pineapple chunks', 'pineapple rings', 'pineapple candy', 'pineapple upside down'],
+    
+    'mangoes': ['mango juice', 'mango nectar', 'mango sauce', 'mango chutney', 'mango salsa', 'dried mango', 'mango candy'],
+    
+    # Vegetables
+    'tomatoes': ['tomato sauce', 'tomato paste', 'tomato juice', 'sun-dried tomato', 'tomato soup', 'tomato puree', 'tomato ketchup', 'tomato paste', 'stewed tomatoes', 'crushed tomatoes', 'tomato powder', 'tomato concentrate'],
+    
+    'peppers': ['pepper spice', 'black pepper', 'white pepper', 'peppercorn', 'pepper sauce', 'pepper seasoning', 'pepper grinder', 'lemon pepper', 'cayenne pepper', 'chile pepper', 'pepper blend'],
+    
+    'onions': ['green onion', 'spring onion', 'onion powder', 'onion salt', 'onion rings', 'onion soup', 'french onion', 'onion dip', 'onion seasoning', 'onion flavor', 'dried onion', 'fried onion'],
+    
+    'potatoes': ['potato chips', 'sweet potato', 'potato starch', 'potato flour', 'mashed potato', 'potato wedges', 'potato skins', 'potato salad', 'potato soup', 'instant potato', 'potato bread'],
+    
+    'carrots': ['carrot juice', 'carrot cake', 'carrot muffin', 'baby carrots', 'carrot soup', 'carrot sticks', 'shredded carrot'],
+    
+    'celery': ['celery salt', 'celery seed', 'celery soup', 'celery powder', 'celery spice'],
+    
+    'cucumbers': ['cucumber salad', 'pickled cucumber', 'cucumber sauce', 'cucumber water'],
+    
+    'broccoli': ['broccoli soup', 'broccoli salad', 'broccoli slaw', 'broccoli rice', 'broccoli cheese'],
+    
+    'cauliflower': ['cauliflower rice', 'cauliflower soup', 'cauliflower wings', 'cauliflower pizza'],
+    
+    'spinach': ['spinach dip', 'spinach soup', 'spinach pasta', 'spinach wrap', 'creamed spinach'],
+    
+    'lettuce': ['lettuce wrap', 'butter lettuce', 'iceberg lettuce'],
+    
+    'corn': ['corn chips', 'corn starch', 'corn syrup', 'popcorn', 'corn flour', 'corn bread', 'corn meal', 'corn tortilla', 'corn dog', 'creamed corn', 'corn nuts', 'corn pudding', 'corn chowder'],
+    
+    'peas': ['split peas', 'pea soup', 'snap peas', 'pea protein', 'frozen peas', 'dried peas'],
+    
+    'beans': ['green beans', 'string beans', 'bean sprouts', 'bean soup', 'refried beans', 'baked beans', 'bean dip'],
+    
+    'mushrooms': ['mushroom soup', 'cream of mushroom', 'mushroom sauce', 'dried mushroom', 'mushroom gravy'],
+    
+    'asparagus': ['asparagus soup', 'cream of asparagus', 'pickled asparagus'],
+    
+    'zucchini': ['zucchini bread', 'zucchini noodles', 'zucchini cake'],
+    
+    'squash': ['squash soup', 'butternut squash', 'acorn squash', 'spaghetti squash'],
+    
+    'ginger': ['ginger ale', 'ginger beer', 'ginger snap', 'ginger tea', 'candied ginger', 'pickled ginger', 'ginger powder', 'ginger spice'],
+    
+    'garlic': ['garlic powder', 'garlic salt', 'garlic bread', 'garlic sauce', 'minced garlic', 'roasted garlic', 'garlic butter', 'garlic paste'],
+    
+    'herbs': ['dried herbs', 'herb seasoning', 'herb blend', 'herb tea', 'herb sauce'],
+    
+    'kale': ['kale chips', 'kale soup', 'kale salad'],
+    
+    'cabbage': ['cabbage soup', 'cabbage roll', 'coleslaw', 'sauerkraut'],
+    
+    'beets': ['beet juice', 'pickled beets', 'beet soup', 'beet salad', 'beet powder'],
+    
+    'radishes': ['pickled radish', 'radish kimchi', 'daikon radish'],
+    
+    'sweet potatoes': ['sweet potato fries', 'sweet potato pie', 'sweet potato chips', 'mashed sweet potato'],
+    
+    # Dairy
+    'butter': ["i can't believe it's not butter", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken'],
+    'cream': ['ice cream', 'cream sauce', 'cream soda', 'cream cheese', 'cream corn', 'creamed coconut'],
+    'milk': ['milk chocolate', 'milkshake', 'coconut milk', 'almond milk', 'soy milk', 'oat milk'],
+    
+    # Meats
+    'chicken': ['chicken stock', 'chicken seasoning', 'chicken flavor', 'chicken sauce'],
+    'beef': ['beef stock', 'beef flavor', 'beef seasoning', 'beefsteak tomato'],
+    
+    # Grains
+    'rice': ['rice paper', 'rice vinegar', 'rice milk', 'rice noodles'],
+    'corn': ['corn chips', 'corn starch', 'corn syrup', 'popcorn', 'corn flour'],
+    
+    # Nuts
+    'almonds': ['almond milk', 'almond extract', 'almond flour'],
+    'coconuts': ['coconut milk', 'coconut water', 'coconut flour'],
+    
+    # Herbs & Spices
+    'mint': ['mint chocolate', 'mint candy', 'peppermint'],
+    'ginger': ['ginger ale', 'ginger beer', 'ginger snap'],
+    
+    # Condiments
+    'mustard': ['mustard greens', 'mustard oil'],
+    'honey': ['honey garlic', 'honeydew', 'honey mustard'],
+    
+    # Beverages
+    'tea': ['tea biscuits', 'tea cake', 'tea towel'],
+    'coffee': ['coffee cake', 'coffee filter', 'coffee maker'],
+    
+    # Misc
+    'sugar': ['sugar snap peas', 'sugar substitute'],
+    'salt': ['salt substitute', 'salt water', 'epsom salt'],
+    'water': ['water chestnuts', 'water crackers', 'watermelon'],
+    'chocolate': ['chocolate milk', 'hot chocolate', 'chocolate sauce', 'chocolate syrup'],
+    'bread': ['breadcrumbs', 'breadsticks', 'bread pudding', 'breaded'],
+    'cheese': ['cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored']
+}
+
 name_replacements = {
     "®": "",
     'mangos': "mangoes",
@@ -28,7 +154,7 @@ price_replacements = {
     " .": " $0.",
     ' ea': '',
     " for": "/",
-    ' ealb': '',
+    'ealb': 'ea/lb',
     'lb.': 'lb'
 }
 

@@ -12,22 +12,30 @@ from nltk.stem import WordNetLemmatizer
 from text.text_constants import *
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.spatial.distance import cosine
+from price_parser import parse_value
+
 
 def similarity(text1, text2):
     """
     Calculate the cosine similarity between two text strings.
+    First checks against exclusion rules.
     """
-    # Create a TF-IDF vectorizer
+    # Check exclusions first
+    text1_lower = text1.lower()
+    text2_lower = text2.lower()
+    
+    # Check if either text matches any exclusion rules
+    for category, exclusions in CATEGORY_EXCLUSIONS.items():
+        if category in text1_lower or category in text2_lower:
+            for exclusion in exclusions:
+                if exclusion in text1_lower or exclusion in text2_lower:
+                    return 0.0  # Force no match for excluded combinations
+    
+    # If no exclusions match, proceed with normal similarity calculation
     vectorizer = TfidfVectorizer()
-
-    # Fit and transform the text
     X = vectorizer.fit_transform([text1, text2])
-
-    # Extract the 1-dimensional vectors from the sparse matrix
     v1 = X[0].toarray().flatten()
     v2 = X[1].toarray().flatten()
-
-    # Calculate the cosine similarity
     return 1 - cosine(v1, v2)
 
 def parse_items_from_multiple_names(names):
@@ -344,35 +352,9 @@ class NightlyScraper:
             name = name.split("|")[0]  # Remove French text
             name = re.sub(r'[^a-zA-Z0-9,.\s\-/]', '', name)
             
-            # Keyword replacements
-            for old, new in name_replacements.items():
-                name = name.replace(old, new)
-            
             # Parse pricing
-            item_price = item.price.lower() if item.price else ""
-            if item.pre_price_text:
-                item_price = f"{item.pre_price_text.lower()} {item_price}"
-            if item.price_text:
-                item_price = f"{item_price} {item.price_text.lower()}"
-            
-            for old, new in price_replacements.items():
-                item_price = item_price.replace(old, new)
-            
-            # Extract price value
-            price = 100000  # Default high price
-            deal = re.search(r"(\d+)\s?(?:/|for)\s\$(\d+\.\d\d)", item_price)
-            if deal:
-                price = float(deal.group(2)) / float(deal.group(1))
-            else:
-                p = re.search(r"([0-9]+\.[0-9][0-9])", item_price)
-                if not re.search(r"lb", item_price) and p:
-                    price = float(p.group(1))
-            
-            # Extract unit
-            units = ['g', 'kg', 'lb', 'oz', 'ml', 'l'] + [u + 's' for u in ['g', 'kg', 'lb', 'oz', 'ml', 'l']]
-            match = re.search(r"(\d+(\.|\-|/|\d)*)\s?({})(?![a-zA-Z])".format("|".join(units)), name)
-            unit = match.group(0) if match else None
-            
+            price, unit, quantity, is_multi = parse_value(item.pre_price_text, item.price, item.price_text)
+    
             # Handle splits and create canonical items
             split_names = parse_items_from_multiple_names(name)
             
@@ -426,6 +408,7 @@ class NightlyScraper:
             await CanonicalItem.insert_many(canonical_items_to_create)
             print(f"Created {len(canonical_items_to_create)} new canonical items")
 
+    '''
     async def create_canonical_items(self, new_items: List[Items]):
         """Create canonical items for new items"""
         print("Creating canonical items...")
@@ -460,33 +443,10 @@ class NightlyScraper:
             for old, new in name_replacements.items():
                 item['name'] = item['name'].replace(old, new)
             
-            # Parse pricing
-            item_price = item['item_details']['price'].lower() if item['item_details']['price'] else ""
-            if item["item_details"]["pre_price_text"]:
-                item_price = f"{item['item_details']['pre_price_text'].lower()} {item_price}"
-            if item["item_details"]["price_text"]:
-                item_price = f"{item_price} {item['item_details']['price_text'].lower()}"
-            
-            for old, new in price_replacements.items():
-                item_price = item_price.replace(old, new)
-            
-            # Extract price value
-            deal = re.search(r"(\d+)\s?(?:/|for)\s\$(\d+\.\d\d)", item_price)
-            if deal:
-                item['price'] = float(deal.group(2)) / float(deal.group(1))
-            else:
-                p = re.search(r"([0-9]+\.[0-9][0-9])", item_price)
-                if re.search(r"lb", item_price):
-                    item['price'] = 100000
-                elif p:
-                    item['price'] = float(p.group(1))
-                else:
-                    item['price'] = 100000
-            
-            # Extract unit
-            units = ['g', 'kg', 'lb', 'oz', 'ml', 'l'] + [u + 's' for u in ['g', 'kg', 'lb', 'oz', 'ml', 'l']]
-            match = re.search(r"(\d+(\.|\-|/|\d)*)\s?({})(?![a-zA-Z])".format("|".join(units)), item['name'])
-            item['unit'] = match.group(0) if match else None
+            sorting_value, unit, quantity, is_multi = parse_value(item['item_details']['pre_price_text'], item['item_details']['price'], item['item_details']['price_text'])
+            item['price'] = sorting_value
+            item['unit'] = unit
+
 
         # Handle splits and create canonical items
         canonical_items_to_create = []
@@ -544,6 +504,7 @@ class NightlyScraper:
         if canonical_items_to_create:
             await CanonicalItem.insert_many(canonical_items_to_create)
             print(f"Created {len(canonical_items_to_create)} canonical items")
+    '''
 
     async def run_async(self):
         """Run the nightly scraper asynchronously"""
