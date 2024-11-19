@@ -34,11 +34,14 @@ CATEGORY_EXCLUSIONS = {
     'mangoes': ['mango juice', 'mango nectar', 'mango sauce', 'mango chutney', 'mango salsa', 'dried mango', 'mango candy'],
     
     # Vegetables
-    'tomatoes': ['tomato sauce', 'tomato paste', 'tomato juice', 'sun-dried tomato', 'tomato soup', 'tomato puree', 'tomato ketchup', 'tomato paste', 'stewed tomatoes', 'crushed tomatoes', 'tomato powder', 'tomato concentrate'],
+    'tomatoes': ['tomato sauce', 'tomato paste', 'tomato juice', 'sun-dried tomato', 'tomato soup', 'tomato puree', 'tomato ketchup', 'tomato paste', 
+                 'stewed tomatoes', 'crushed tomatoes', 'tomato powder', 
+                 'tomato concentrate', 'diced tomatoes', 'diced tomato',
+                 'tomato ketchup', 'unico tomatoes'],
     
     'peppers': ['pepper spice', 'black pepper', 'white pepper', 'peppercorn', 'pepper sauce', 'pepper seasoning', 'pepper grinder', 'lemon pepper', 'cayenne pepper', 'chile pepper', 'pepper blend'],
     
-    'onions': ['green onion', 'spring onion', 'onion powder', 'onion salt', 'onion rings', 'onion soup', 'french onion', 'onion dip', 'onion seasoning', 'onion flavor', 'dried onion', 'fried onion'],
+    'onions': ['green onion', 'green onions', 'spring onion', 'onion powder', 'onion salt', 'onion rings', 'onion soup', 'french onion', 'onion dip', 'onion seasoning', 'onion flavor', 'dried onion', 'fried onion'],
     
     'potatoes': ['potato chips', 'sweet potato', 'potato starch', 'potato flour', 'mashed potato', 'potato wedges', 'potato skins', 'potato salad', 'potato soup', 'instant potato', 'potato bread'],
     
@@ -87,16 +90,16 @@ CATEGORY_EXCLUSIONS = {
     'sweet potatoes': ['sweet potato fries', 'sweet potato pie', 'sweet potato chips', 'mashed sweet potato'],
     
     # Dairy
-    'butter': ["i can't believe it's not butter", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken'],
+    'butter': ["i can't believe it's not butter", "i can't believe it's not butter!", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken', 'margarine', 'garlic butter', ],
     'cream': ['ice cream', 'cream sauce', 'cream soda', 'cream cheese', 'cream corn', 'creamed coconut'],
-    'milk': ['milk chocolate', 'milkshake', 'coconut milk', 'almond milk', 'soy milk', 'oat milk'],
-    
+    'milk': ['milk chocolate', 'milkshake', 'coconut milk', 'almond milk', 'soy milk', 'oat milk', 'chocolate milk', 'milk bone', 'milk-bone', 'milk baked', 'evaporated milk', 'milk chocolate', 'condensed milk', 'dairy milk', 'muscle milk'],
+    'eggs': ['egg salad', 'egg roll', 'egg soup', 'egg noodles', 'egg casserole', 'egg bread', 'egg muffins', 'egg scramble', 'egg white', 'egg white liquid', 'egg white powder', 'egg nog'],
     # Meats
     'chicken': ['chicken stock', 'chicken seasoning', 'chicken flavor', 'chicken sauce'],
     'beef': ['beef stock', 'beef flavor', 'beef seasoning', 'beefsteak tomato'],
     
     # Grains
-    'rice': ['rice paper', 'rice vinegar', 'rice milk', 'rice noodles'],
+    'rice': ['rice paper', 'rice vinegar', 'rice milk', 'rice noodles', 'rice pudding'],
     'corn': ['corn chips', 'corn starch', 'corn syrup', 'popcorn', 'corn flour'],
     
     # Nuts
@@ -121,7 +124,8 @@ CATEGORY_EXCLUSIONS = {
     'water': ['water chestnuts', 'water crackers', 'watermelon'],
     'chocolate': ['chocolate milk', 'hot chocolate', 'chocolate sauce', 'chocolate syrup'],
     'bread': ['breadcrumbs', 'breadsticks', 'bread pudding', 'breaded'],
-    'cheese': ['cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored']
+    'cheese': ['cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored'],
+    'cereal': ['cereal bars', 'cereal bar']
 }
 
 name_replacements = {

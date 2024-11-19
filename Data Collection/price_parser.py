@@ -296,9 +296,7 @@ def parse_value(pre_price_text: str, price: str, price_text: str) -> Tuple[float
 
     # Calculate base value
     if unit == 'each':
-        true_value = price_float / items_per_price if items_per_price > 0 else price_float
-        # Add large offset to deprioritize 'each' items
-        sorting_value = true_value + 10000
+        sorting_value = price_float / items_per_price if items_per_price > 0 else price_float
     else:
         # For weight units, use price directly as the sorting value
         # This prioritizes items sold by weight
