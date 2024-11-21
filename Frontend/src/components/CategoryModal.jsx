@@ -5,7 +5,9 @@ import { formatPrice, getPriceValue } from '../utils/priceUtils';
 export const CategoryModal = ({ category, isOpen, onClose }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   
-  const bestPrice = Math.min(...category.canonicalItems.map(i => i.price));
+  const bestPrice = Math.min(...category.canonicalItems.map(item => 
+    getPriceValue(item, category.name, category.cat)
+  ));
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -44,7 +46,9 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
             <div className="mt-1">
               <div className="inline-block bg-green-50 px-1.5 py-0.5 rounded">
                 <span className="text-sm font-bold text-green-700">
-                  {formatPrice(category.canonicalItems.find(i => i.price === bestPrice)?.originalItem)}
+                  {formatPrice(category.canonicalItems.find(i => 
+                    getPriceValue(i, category.name, category.cat) === bestPrice
+                  )?.originalItem)}
                 </span>
               </div>
             </div>
@@ -69,7 +73,7 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {sortItems(category.canonicalItems).map(item => {
-                const isLowestPrice = item.price === bestPrice;
+                const isLowestPrice = getPriceValue(item, category.name, category.cat) === bestPrice;
                 return (
                   <tr 
                     key={item.item_id}

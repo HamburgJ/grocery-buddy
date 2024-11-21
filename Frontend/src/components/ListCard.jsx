@@ -12,13 +12,18 @@ export const ListCard = ({ category, isExpanded }) => {
   const isFavorite = favorites.includes(category._id);
   
   const mainItem = category.canonicalItems[0].originalItem;
-  const bestPrice = Math.min(...category.canonicalItems.map(i => i.price));
-  const worstPrice = Math.max(...category.canonicalItems.map(i => i.price));
-  
   const sortedItems = [...category.canonicalItems].sort((a, b) => 
-    a.price - b.price
+    getPriceValue(a, category.name, category.cat) - getPriceValue(b, category.name, category.cat)
   );
 
+  const bestPrice = Math.min(...category.canonicalItems.map(i => 
+    getPriceValue(i, category.name, category.cat)
+  ));
+  
+  const worstPrice = Math.max(...category.canonicalItems.map(i => 
+    getPriceValue(i, category.name, category.cat)
+  ));
+  
   const displayItems = sortedItems.slice(0, 5);
   const hasMoreItems = category.canonicalItems.length > 5;
   const bestPriceItem = sortedItems[0].originalItem;
@@ -96,7 +101,7 @@ export const ListCard = ({ category, isExpanded }) => {
             <table className="w-full">
               <tbody>
                 {displayItems.map(item => {
-                  const isLowestPrice = item.price === bestPrice;
+                  const isLowestPrice = getPriceValue(item, category.name, category.cat) === bestPrice;
                   return (
                     <tr 
                       key={item.originalItem.item_id}

@@ -67,8 +67,14 @@ export const CategoryCard = ({ category }) => {
 
   const sortItems = (items) => {
     return [...items].filter(item => item.originalItem).sort((a, b) => {
-      const aValue = sortConfig.field === 'price' ? a.price : a.originalItem[sortConfig.field];
-      const bValue = sortConfig.field === 'price' ? b.price : b.originalItem[sortConfig.field];
+      if (sortConfig.field === 'price') {
+        return sortConfig.direction === 'asc' 
+          ? getPriceValue(a, category.name, category.cat) - getPriceValue(b, category.name, category.cat)
+          : getPriceValue(b, category.name, category.cat) - getPriceValue(a, category.name, category.cat);
+      }
+      // For other fields
+      const aValue = a.originalItem[sortConfig.field];
+      const bValue = b.originalItem[sortConfig.field];
       return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
     });
   };
@@ -220,7 +226,7 @@ export const CategoryCard = ({ category }) => {
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {sortItems(validItems).map(item => {
-                    const isLowestPrice = item.price === bestPrice;
+                    const isLowestPrice = getPriceValue(item, category.name, category.cat) === bestPrice;
                     return (
                       <tr 
                         key={item.item_id}
