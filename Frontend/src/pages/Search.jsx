@@ -7,6 +7,7 @@ import { fetchCategories } from '../api/categories';
 import { useMerchants } from '../contexts/MerchantContext';
 import { useFilters } from '../contexts/FilterContext';
 import { VALID_CATEGORIES } from '../constants/categories';
+import { env } from '../config/environment';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -28,6 +29,12 @@ const Search = () => {
     loadCategories();
   }, [searchParams, filters]);
 
+  useEffect(() => {
+    if (env.NO_EXTERNAL) {
+      updateFilters({ viewMode: 'list' });
+    }
+  }, []);
+
   const loadCategories = async () => {
     setLoading(true);
     try {
@@ -37,8 +44,8 @@ const Search = () => {
         limit: ITEMS_PER_PAGE,
         categories: filters.categories,
         merchantIds: filters.merchants.join(','),
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder
+        sortBy: 'interest',
+        sortOrder: 'desc'
       });
       
       setCategories(result.data);
@@ -77,10 +84,6 @@ const Search = () => {
           newParams.set('page', '1');
           setSearchParams(newParams);
         }}
-        onSortChange={(sort) => {
-          const [sortBy, sortOrder] = sort.split('-');
-          updateFilters({ sortBy, sortOrder });
-        }}
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
         viewMode={filters.viewMode}
@@ -88,9 +91,41 @@ const Search = () => {
       />
       
       {loading ? (
-        <div>Loading...</div>
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        </div>
       ) : error ? (
-        <div>{error}</div>
+        <div className="text-center py-12">
+          <p className="text-red-500">{error}</p>
+        </div>
+      ) : categories.length === 0 ? (
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+            No Results Found
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {searchTerm ? (
+              <>
+                No items found for "<span className="font-medium">{searchTerm}</span>"
+                {filters.categories.length > 0 && " in the selected categories"}
+                {filters.merchants.length > 0 && " at the selected stores"}
+              </>
+            ) : (
+              "Try adjusting your filters or search terms"
+            )}
+          </p>
+          {(filters.categories.length > 0 || filters.merchants.length > 0) && (
+            <button
+              onClick={() => {
+                updateFilters({ categories: [], merchants: [] });
+                setSidebarOpen(false);
+              }}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
       ) : (
         <CategoryGrid 
           categories={categories}

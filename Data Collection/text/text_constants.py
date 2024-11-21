@@ -3,7 +3,7 @@
 CATEGORY_EXCLUSIONS = {
     # Fruits
     # Fruits
-    'apples': ['pineapple', 'apple juice', 'apple sauce', 'crabapple', 'apple pie', 'apple turnover', 'apple muffin', 'apple cake', 'apple cider', 'apple butter', 'candy apple', 'caramel apple', 'apple chips', 'dried apple', 'apple danish', 'apple strudel'],
+    'apples': ['cider', 'pineapple', 'apple juice', 'apple sauce', 'sauce', 'applesauce', 'sauces', 'crabapple', 'apple pie', 'apple turnover', 'apple muffin', 'apple cake', 'apple cider', 'apple butter', 'candy apple', 'caramel apple', 'apple chips', 'dried apple', 'apple danish', 'apple strudel'],
     
     'grapes': ['grapefruit', 'grape tomato', 'grape juice', 'grape leaves', 'grape jelly', 'grape soda', 'grape candy', 'grape popsicle', 'grape flavored', 'grape drink', 'grape medicine'],
     
@@ -37,13 +37,15 @@ CATEGORY_EXCLUSIONS = {
     'tomatoes': ['tomato sauce', 'tomato paste', 'tomato juice', 'sun-dried tomato', 'tomato soup', 'tomato puree', 'tomato ketchup', 'tomato paste', 
                  'stewed tomatoes', 'crushed tomatoes', 'tomato powder', 
                  'tomato concentrate', 'diced tomatoes', 'diced tomato',
-                 'tomato ketchup', 'unico tomatoes'],
+                 'tomato ketchup', 'unico tomatoes', 'diced', 'no salt added', 
+                 'canned', 'sardine', 'campbell', 'soup', 'unico', 'passata', 'aurora', 'campbells',
+                 'campbell s',],
     
     'peppers': ['pepper spice', 'black pepper', 'white pepper', 'peppercorn', 'pepper sauce', 'pepper seasoning', 'pepper grinder', 'lemon pepper', 'cayenne pepper', 'chile pepper', 'pepper blend'],
     
-    'onions': ['green onion', 'green onions', 'spring onion', 'onion powder', 'onion salt', 'onion rings', 'onion soup', 'french onion', 'onion dip', 'onion seasoning', 'onion flavor', 'dried onion', 'fried onion'],
+    'onions': ['kuhne gourmet', 'green onion', 'green onions', 'spring onion', 'onion powder', 'onion salt', 'onion rings', 'onion soup', 'french onion', 'onion dip', 'onion seasoning', 'onion flavor', 'dried onion', 'fried onion'],
     
-    'potatoes': ['potato chips', 'sweet potato', 'potato starch', 'potato flour', 'mashed potato', 'potato wedges', 'potato skins', 'potato salad', 'potato soup', 'instant potato', 'potato bread'],
+    'potatoes': ['crips','fries','chips', 'potato chips', 'sweet potato', 'potato starch', 'potato flour', 'mashed potato', 'potato wedges', 'potato skins', 'potato salad', 'potato soup', 'instant potato', 'potato bread'],
     
     'carrots': ['carrot juice', 'carrot cake', 'carrot muffin', 'baby carrots', 'carrot soup', 'carrot sticks', 'shredded carrot'],
     
@@ -90,10 +92,10 @@ CATEGORY_EXCLUSIONS = {
     'sweet potatoes': ['sweet potato fries', 'sweet potato pie', 'sweet potato chips', 'mashed sweet potato'],
     
     # Dairy
-    'butter': ["i can't believe it's not butter", "i can't believe it's not butter!", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken', 'margarine', 'garlic butter', ],
+    'butter': ["pasty", "dough", "croissant","tart","i can't believe it's not butter", "i can't believe it's not butter!", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken', 'margarine', 'garlic butter', ],
     'cream': ['ice cream', 'cream sauce', 'cream soda', 'cream cheese', 'cream corn', 'creamed coconut'],
-    'milk': ['milk chocolate', 'milkshake', 'coconut milk', 'almond milk', 'soy milk', 'oat milk', 'chocolate milk', 'milk bone', 'milk-bone', 'milk baked', 'evaporated milk', 'milk chocolate', 'condensed milk', 'dairy milk', 'muscle milk'],
-    'eggs': ['egg salad', 'egg roll', 'egg soup', 'egg noodles', 'egg casserole', 'egg bread', 'egg muffins', 'egg scramble', 'egg white', 'egg white liquid', 'egg white powder', 'egg nog'],
+    'milk': ['milkshake','flavoured milk','milk tea', 'biscuit','milk chocolate', 'milkshake', 'coconut milk', 'almond milk', 'soy milk', 'oat milk', 'chocolate milk', 'milk bone', 'milk-bone', 'milk baked', 'evaporated milk', 'milk chocolate', 'condensed milk', 'dairy milk', 'muscle milk'],
+    'eggs': ['just egg', 'quail egg', 'quail eggs', 'egg salad', 'egg roll', 'egg soup', 'egg noodles', 'egg casserole', 'egg bread', 'egg muffins', 'egg scramble', 'egg white', 'egg white liquid', 'egg white powder', 'egg nog'],
     # Meats
     'chicken': ['chicken stock', 'chicken seasoning', 'chicken flavor', 'chicken sauce'],
     'beef': ['beef stock', 'beef flavor', 'beef seasoning', 'beefsteak tomato'],
@@ -124,8 +126,10 @@ CATEGORY_EXCLUSIONS = {
     'water': ['water chestnuts', 'water crackers', 'watermelon'],
     'chocolate': ['chocolate milk', 'hot chocolate', 'chocolate sauce', 'chocolate syrup'],
     'bread': ['breadcrumbs', 'breadsticks', 'bread pudding', 'breaded'],
-    'cheese': ['cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored'],
-    'cereal': ['cereal bars', 'cereal bar']
+    'cheese': ['calzones', 'mushroom','cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored', 'mac and cheese', 'ham and cheese', 'queso', 'chips', 'cheese flavoured'],
+    'cereal': ['cereal bars', 'cereal bar'],
+    'peanut butter': ['peanut butter cups', 'peanut butter cookies', 'peanut butter filled', 'pretzel']  ,
+    'cookies': ['crackers', 'dough']
 }
 
 name_replacements = {

@@ -1,4 +1,5 @@
 from price_parser import parse_price_text, parse_pre_price_text, parse_value
+from scraper import process_split_names, similarity
 
 def run_price_text_tests():
     test_cases = [
@@ -261,7 +262,167 @@ def run_parse_value_tests():
     print(f"Failed: {failed}")
     print(f"Total:  {passed + failed}")
 
+def find_matches(text1, categories, threshold=0.5):
+    text1 = text1.lower()
+    matches = []
+    
+    for category in categories:
+        category = category.lower()
+        
+        # If one string contains the other entirely
+        if category in text1 or text1 in category:
+            score = min(len(text1), len(category)) / len(category)
+            if score >= threshold:
+                matches.append((category, score))
+            continue
+            
+        # Find longest common substring
+        max_length = 0
+        for i in range(len(text1)):
+            for j in range(len(category)):
+                k = 0
+                while (i + k < len(text1) and 
+                       j + k < len(category) and 
+                       text1[i + k] == category[j + k]):
+                    k += 1
+                max_length = max(max_length, k)
+        
+        score = max_length / len(category)
+        if score >= threshold:
+            matches.append((category, score))
+    
+    return sorted(matches, key=lambda x: x[1], reverse=True)
+
+def run_similarity_tests():
+    test_cases = [
+        # Original cases with multiple expected matches
+        ("string cheese", ["string cheese", "cheese", "cream cheese"], ["string cheese", "cheese"]),
+        ("cream cheese spread", ["cream cheese", "cheese", "spread"], ["cream cheese", "cheese", "spread"]),
+        
+        # Cases with noise words
+        ("organic whole milk from local farm", ["milk", "whole milk", "chocolate milk"], ["whole milk", "milk"]),
+        ("fresh ripe strawberries on sale", ["strawberry", "berry", "fruit"], ["strawberry"]),
+        ("premium grass fed ground beef", ["beef", "ground beef", "meat"], ["ground beef", "beef"]),
+        
+        # Cases with brand names and descriptors
+        ("Kraft String Cheese Sticks", ["string cheese", "cheese", "dairy"], ["string cheese", "cheese"]),
+        ("Organic Valley 2% Reduced Fat Milk", ["milk", "2% milk", "dairy"], ["2% milk", "milk"]),
+        
+        # Edge cases with similar words
+        ("shredded mozzarella cheese blend", ["mozzarella", "cheese", "dairy"], ["mozzarella", "cheese"]),
+        ("mixed berry medley", ["berry", "strawberry", "blueberry"], ["berry"]),
+        
+        # Tricky berry cases
+        ("fresh blueberries", 
+         ["blueberry", "blackberry", "berry", "blue cheese"], 
+         ["blueberry", "berry"]),  # Should not match "blue cheese"
+        
+        ("mixed berry blend", 
+         ["strawberry", "blueberry", "berry", "very fresh"], 
+         ["berry"]),  # Should not match individual berries or "very"
+        
+        # Similar word traps
+        ("grape tomatoes", 
+         ["tomato", "grape", "grapefruit"], 
+         ["tomato"]),  # Should not match "grape" or "grapefruit"
+        
+        ("butternut squash", 
+         ["butter", "squash", "nut"], 
+         ["squash"]),  # Should not match "butter" or "nut"
+        
+        ("pineapple chunks", 
+         ["apple", "pineapple", "pine nuts"], 
+         ["pineapple"]),  # Should not match "apple" or "pine nuts"
+        
+        # Compound words
+        ("honeydew melon", 
+         ["honey", "melon", "honeydew"], 
+         ["honeydew", "melon"]),  # Should match both but not just "honey"
+        
+        # Brand-like names that could confuse
+        ("Green Giant sweet corn", 
+         ["corn", "green beans", "giant"], 
+         ["corn"]),  # Should not match "green" or "giant"
+        
+        # Numbers and measurements
+        ("2 percent milk", 
+         ["milk", "2%", "percent"], 
+         ["milk"]),  # Should handle number variations
+        
+        # Multiple descriptors
+        ("extra virgin olive oil", 
+         ["oil", "olive oil", "extra virgin", "virgin"], 
+         ["olive oil"]),  # Should prefer longest meaningful match
+        
+        # Similar spellings
+        ("fresh carrots", 
+         ["carrot", "parrot", "karats"], 
+         ["carrot"]),  # Should not match similar-spelling words
+        
+        # Plural/singular variations
+        ("baby potatoes", 
+         ["potato", "potatoes", "baby food"], 
+         ["potato", "potatoes"]),  # Should handle both forms, not "baby food"
+        
+        # Hyphenated words
+        ("coca-cola drinks", 
+         ["cola", "coca", "coca-cola", "drink"], 
+         ["coca-cola", "drink"]),  # Should handle hyphenated brands
+        
+        # Common prefixes/suffixes
+        ("unsweetened almond milk", 
+         ["milk", "sweet", "sweetened", "almond"], 
+         ["almond", "milk"]),  # Should not match "sweet" or "sweetened"
+        
+        # Compound categories
+        ("cream cheese spread", 
+         ["cheese spread", "cream cheese", "cheese", "spread"], 
+         ["cream cheese", "cheese spread", "cheese", "spread"]),  # Multiple valid matches
+        
+        # Spacing variations
+        ("icecream sandwich", 
+         ["ice cream", "ice", "cream", "sandwich"], 
+         ["ice cream", "sandwich"]),  # Should handle spacing differences
+    ]
+    
+    passed = 0
+    failed = 0
+    
+    for test_term, categories, expected_matches in test_cases:
+        print(f"\nTesting term: {test_term}")
+        matches = find_matches(test_term, categories)
+        found_categories = [match[0] for match in matches]
+        
+        print(f"Found matches: {found_categories}")
+        print(f"Expected matches: {expected_matches}")
+        
+        # Check if all expected matches are found (order independent)
+        if set(found_categories) >= set(expected_matches):
+            print(f"✓ Test term: {test_term} passed")
+            passed += 1
+        else:
+            print(f"✗ Test term: {test_term} failed")
+            print(f"Missing matches: {set(expected_matches) - set(found_categories)}")
+            failed += 1
+            
+    print(f"\nTest Summary:")
+    print(f"Passed: {passed}")
+    print(f"Failed: {failed}")
+    print(f"Total:  {passed + failed}")
+
 if __name__ == "__main__":
     #run_price_text_tests()
     #run_pre_price_text_tests()
-    run_parse_value_tests()
+    #run_parse_value_tests()
+    #run_similarity_tests()
+    split_names = process_split_names("Diet Coke Pop Mini Bottles".lower())
+
+    for split_name in split_names:
+        closest_matches = sorted([
+            ('cola', similarity(split_name, 'cola')),
+            ('coca cola', similarity(split_name, 'coca cola')),
+        ], key=lambda x: x[1], reverse=True)
+        print(split_name)
+        print(closest_matches)
+
+    run_similarity_tests()

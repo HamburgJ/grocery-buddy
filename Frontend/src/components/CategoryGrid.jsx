@@ -2,6 +2,7 @@ import { CategoryCard } from './CategoryCard';
 import { ListCard } from './ListCard';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { env } from '../config/environment';
 
 export const CategoryGrid = ({ 
   categories, 
@@ -11,16 +12,17 @@ export const CategoryGrid = ({
 }) => {
   const [allExpanded, setAllExpanded] = useState(false);
   const showPagination = metadata && metadata.totalPages > 1;
+  const effectiveViewMode = env.NO_EXTERNAL ? 'list' : viewMode;
 
   const getGridClassName = () => {
-    return viewMode === 'list' 
+    return effectiveViewMode === 'list' 
       ? '' // No grid for list view
       : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3';
   };
 
   return (
     <div>
-      {viewMode === 'list' ? (
+      {effectiveViewMode === 'list' ? (
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="flex justify-end p-2 bg-gray-50 border-b">
             <button
@@ -34,7 +36,7 @@ export const CategoryGrid = ({
             <thead className="bg-gray-50 text-xs uppercase text-gray-500 sticky top-0">
               <tr>
                 <th className="py-2 px-2 w-8"></th>
-                <th className="py-2 px-2 w-12">Image</th>
+                {!env.NO_EXTERNAL && <th className="py-2 px-2 w-12">Image</th>}
                 <th className="py-2 px-2 w-24 text-right">Price</th>
                 <th className="py-2 px-2 text-left">Item</th>
                 <th className="py-2 px-2 text-left w-32">Merchants</th>

@@ -3,6 +3,7 @@ import { Star, StarOff, ChevronDown, ChevronRight } from 'lucide-react';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { CategoryModal } from './CategoryModal';
 import { formatPrice } from '../utils/priceUtils';
+import { env } from '../config/environment';
 
 export const ListCard = ({ category, isExpanded }) => {
   const [expanded, setExpanded] = useState(false);
@@ -37,15 +38,17 @@ export const ListCard = ({ category, isExpanded }) => {
             <ChevronRight size={14} />
           </div>
         </td>
-        <td className="py-1.5 px-1 w-16">
-          <div className="relative w-14 h-14">
-            <img
-              src={mainItem.cutout_image_url}
-              alt={mainItem.name}
-              className="absolute inset-0 w-full h-full object-contain"
-            />
-          </div>
-        </td>
+        {!env.NO_EXTERNAL && (
+          <td className="py-1.5 px-1 w-16">
+            <div className="relative w-14 h-14">
+              <img
+                src={mainItem.cutout_image_url}
+                alt={mainItem.name}
+                className="absolute inset-0 w-full h-full object-contain"
+              />
+            </div>
+          </td>
+        )}
         <td className="py-1.5 px-1 text-right whitespace-nowrap w-24">
           <div className="text-sm font-medium text-green-600">{formatPrice(bestPriceItem)}</div>
           {bestPrice !== worstPrice && (
@@ -74,12 +77,14 @@ export const ListCard = ({ category, isExpanded }) => {
         <td className="py-1.5 px-1 w-[300px]">
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-600 whitespace-nowrap">Best price at:</span>
-            {bestPriceItem.merchant?.logo_url && (
+            {!env.NO_MERCHANT_IMAGES && bestPriceItem.merchant?.logo_url ? (
               <img
                 src={bestPriceItem.merchant.logo_url}
                 alt={bestPriceItem.merchant.name}
                 className="w-32 h-4 object-contain"
               />
+            ) : (
+              <span className="text-xs text-gray-700">{bestPriceItem.merchant?.name}</span>
             )}
           </div>
         </td>
@@ -117,7 +122,7 @@ export const ListCard = ({ category, isExpanded }) => {
                           <span className="text-gray-600 truncate">
                             {item.originalItem.merchant?.name}
                           </span>
-                          {item.originalItem.merchant?.logo_url && (
+                          {!env.NO_MERCHANT_IMAGES && item.originalItem.merchant?.logo_url && (
                             <img
                               src={item.originalItem.merchant.logo_url}
                               alt={item.originalItem.merchant.name}
@@ -129,16 +134,6 @@ export const ListCard = ({ category, isExpanded }) => {
                     </tr>
                   );
                 })}
-                {hasMoreItems && (
-                  <tr 
-                    className="text-center text-xs text-gray-500 hover:bg-gray-50/30 cursor-pointer"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    <td colSpan="5" className="py-2">
-                      + {category.canonicalItems.length - 5} more items
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>

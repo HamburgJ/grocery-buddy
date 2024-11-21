@@ -15,30 +15,61 @@ from scipy.spatial.distance import cosine
 from price_parser import parse_value
 
 
-def similarity(text1, text2):
+def similarity(text: str, category: str):
     """
     Calculate the cosine similarity between two text strings.
     First checks against exclusion rules.
     """
     # Check exclusions first
-    text1_lower = text1.lower()
-    text2_lower = text2.lower()
+    category_lower = category.lower()
+    text_lower = text.lower()
     
-    # Check if either text matches any exclusion rules
-    for category, exclusions in CATEGORY_EXCLUSIONS.items():
-        if category in text1_lower or category in text2_lower:
-            for exclusion in exclusions:
-                if exclusion in text1_lower or exclusion in text2_lower:
-                    return 0.0  # Force no match for excluded combinations
-    
+    if CATEGORY_EXCLUSIONS.get(category_lower):
+        for exclusion in CATEGORY_EXCLUSIONS.get(category_lower):
+            if exclusion in text_lower:
+                return -1
+
     # If no exclusions match, proceed with normal similarity calculation
     vectorizer = TfidfVectorizer()
-    X = vectorizer.fit_transform([text1, text2])
+    X = vectorizer.fit_transform([category, text])
     v1 = X[0].toarray().flatten()
     v2 = X[1].toarray().flatten()
-    return 1 - cosine(v1, v2)
+    return 0.5 + 0.5 * cosine(v1, v2)
 
-def parse_items_from_multiple_names(names):
+
+def find_matches(text1, categories, threshold=0.5):
+    text1 = text1.lower()
+    matches = []
+    
+    for category in categories:
+        category = category.lower()
+        
+        # If one string contains the other entirely
+        if category in text1 or text1 in category:
+            score = min(len(text1), len(category)) / len(category)
+            if score >= threshold:
+                matches.append((category, score))
+            continue
+            
+        # Find longest common substring
+        max_length = 0
+        for i in range(len(text1)):
+            for j in range(len(category)):
+                k = 0
+                while (i + k < len(text1) and 
+                       j + k < len(category) and 
+                       text1[i + k] == category[j + k]):
+                    k += 1
+                max_length = max(max_length, k)
+        
+        score = max_length / len(category)
+        if score >= threshold:
+            matches.append((category, score))
+    
+    return sorted(matches, key=lambda x: x[1], reverse=True)
+
+
+def process_split_names(names):
     # Parse items from multiple names
     # start at rightmost item. A new item can be created once a word is found with at least 2 characters (alphabetical)
     #, then a separator word is found (and, or, ,).
@@ -328,17 +359,55 @@ class NightlyScraper:
         
         return filtered_items
 
-    async def create_and_process_canonical_items(self, item_ids: List[str]):
+
+
+    async def create_and_process_canonical_items(self, items: List[Items]):
         """Create and process canonical items for new items only"""
         print("Creating and processing canonical items...")
-        
-        # Get all items from database
-        items = await Items.find({"item_id": {"$in": item_ids}}).to_list()
         
         # Get all canonical categories for reference
         canonical_categories = await CanonicalCategory.find_all().to_list()
         
-        # Process each item
+        def check_exclusions(text: str, category: str):
+            """Check if any exclusions apply to this text-category pair"""
+            category_lower = category.lower()
+            text_lower = text.lower()
+            
+            if CATEGORY_EXCLUSIONS.get(category_lower):
+                for exclusion in CATEGORY_EXCLUSIONS.get(category_lower):
+                    if exclusion in text_lower:
+                        return True
+            return False
+
+        def get_category_matches(text: str, canonical_categories: List[CanonicalCategory], full_name: str = "") -> List[tuple[CanonicalCategory, float]]:
+            """Get valid category matches for a text, considering exclusions"""
+            # First check if any exclusions apply to the full item name
+            excluded_categories = {
+                cat.name for cat in canonical_categories 
+                if any(check_exclusions(full_name, c) for c in cat.categories)
+            }
+            
+            matches = []
+            for category in canonical_categories:
+                if category.name in excluded_categories:
+                    continue
+                    
+                # Get matches against all category terms
+                all_matches = []
+                for cat_term in category.categories:
+                    if check_exclusions(text, cat_term):
+                        continue
+                    term_matches = find_matches(text, [cat_term])
+                    if term_matches:
+                        all_matches.extend(term_matches)
+                
+                # If we found any matches, keep the best score
+                if all_matches:
+                    best_match = max(all_matches, key=lambda x: x[1])
+                    matches.append((category, best_match[1]))
+            
+            return [m for m in matches if m[1] >= 0.5]
+
         canonical_items_to_create = []
         for item in items:
             # Skip if canonical item already exists or if item has null/empty price or name
@@ -346,7 +415,7 @@ class NightlyScraper:
                 not item.price or item.price == "" or
                 not item.name or item.name == ""):
                 continue
-                
+            
             # Text normalization
             name = ftfy.fix_text(item.name.lower())
             name = name.split("|")[0]  # Remove French text
@@ -354,25 +423,26 @@ class NightlyScraper:
             
             # Parse pricing
             price, unit, quantity, is_multi = parse_value(item.pre_price_text, item.price, item.price_text)
-    
-            # Handle splits and create canonical items
-            split_names = parse_items_from_multiple_names(name)
-            
+
             # Get potential categories based on item's categories
             relevant_categories = [
                 c for c in canonical_categories 
                 if any(cat in item.categories for cat in c.categories)
             ]
             
+            # Handle splits and create canonical items
+            split_names = process_split_names(name)
+            
             if len(split_names) > 1:
-                # Handle split items
+                # Process multi-item entries
                 for split_name in split_names:
-                    closest_matches = sorted([
-                        (c, similarity(split_name, c.name))
-                        for c in relevant_categories
-                    ], key=lambda x: x[1], reverse=True)
+                    valid_matches = get_category_matches(
+                        split_name, 
+                        relevant_categories,
+                        full_name=name
+                    )
                     
-                    if closest_matches and closest_matches[0][1] > 0.5:
+                    for category, score in valid_matches:
                         canonical_items_to_create.append(
                             CanonicalItem(
                                 item_id=item.item_id,
@@ -380,137 +450,38 @@ class NightlyScraper:
                                 name=split_name,
                                 price=price,
                                 unit=unit,
-                                canonical_category=closest_matches[0][0].name
-                            )
-                        )
-            else:
-                # Handle single items
-                closest_matches = sorted([
-                    (c, similarity(name, c.name))
-                    for c in relevant_categories
-                ], key=lambda x: x[1], reverse=True)
-                
-                category_name = closest_matches[0][0].name if closest_matches else None
-                
-                canonical_items_to_create.append(
-                    CanonicalItem(
-                        item_id=item.item_id,
-                        flyer_id=item.flyer_id,
-                        name=name,
-                        price=price,
-                        unit=unit,
-                        canonical_category=category_name
-                    )
-                )
-        
-        # Bulk insert new canonical items
-        if canonical_items_to_create:
-            await CanonicalItem.insert_many(canonical_items_to_create)
-            print(f"Created {len(canonical_items_to_create)} new canonical items")
-
-    '''
-    async def create_canonical_items(self, new_items: List[Items]):
-        """Create canonical items for new items"""
-        print("Creating canonical items...")
-        
-        # Convert Items to dict format for processing
-        items = []
-        for item in new_items:
-            # Skip if canonical item already exists
-            if await CanonicalItem.find_one({"item_id": item.item_id}):
-                continue
-            
-            items.append({
-                "item_id": item.item_id,
-                "flyer_id": item.flyer_id,
-                "name": item.name,
-                "categories": item.categories,
-                "item_details": {
-                    "price": item.price,
-                    "pre_price_text": item.pre_price_text,
-                    "price_text": item.price_text
-                }
-            })
-
-        # Process items in batches
-        for item in items:
-            # Text normalization
-            item['name'] = ftfy.fix_text(item['name'].lower())
-            item['name'] = item['name'].split("|")[0]  # Remove French text
-            item['name'] = re.sub(r'[^a-zA-Z0-9,.\s\-/]', '', item['name'])
-            
-            # Keyword replacements
-            for old, new in name_replacements.items():
-                item['name'] = item['name'].replace(old, new)
-            
-            sorting_value, unit, quantity, is_multi = parse_value(item['item_details']['pre_price_text'], item['item_details']['price'], item['item_details']['price_text'])
-            item['price'] = sorting_value
-            item['unit'] = unit
-
-
-        # Handle splits and create canonical items
-        canonical_items_to_create = []
-        for item in items:
-            split_names = parse_items_from_multiple_names(item['name'])
-            
-            # Get potential categories based on item's categories
-            categories = []
-            if 'categories' in item and item['categories']:
-                categories = await CanonicalCategory.find(
-                    {"name": {"$in": item['categories']}
-                }).to_list()
-            
-            if len(split_names) > 1:
-                # Handle split items
-                for split_name in split_names:
-                    closest_matches = sorted([
-                        (c, similarity(split_name, c.name))
-                        for c in categories
-                    ], key=lambda x: x[1], reverse=True)
-                    
-                    if closest_matches and closest_matches[0][1] > 0.8:
-                        category = closest_matches[0][0]
-                        canonical_items_to_create.append(
-                            CanonicalItem(
-                                item_id=item['item_id'],
-                                flyer_id=item['flyer_id'],
-                                name=split_name,
-                                price=item['price'],
-                                unit=item['unit'],
                                 canonical_category=category.name
                             )
                         )
             else:
-                # Handle single items
-                closest_matches = sorted([
-                    (c, similarity(item['name'], c.name))
-                    for c in categories
-                ], key=lambda x: x[1], reverse=True)
-                
-                category_name = closest_matches[0][0].name if closest_matches and closest_matches[0][1] > 0.8 else None
-                
-                canonical_items_to_create.append(
-                    CanonicalItem(
-                        item_id=item['item_id'],
-                        flyer_id=item['flyer_id'],
-                        name=item['name'],
-                        price=item['price'],
-                        unit=item['unit'],
-                        canonical_category=category_name
-                    )
+                # Process single-item entries
+                valid_matches = get_category_matches(
+                    name, 
+                    relevant_categories,
+                    full_name=name
                 )
+                
+                for category, score in valid_matches:
+                    canonical_items_to_create.append(
+                        CanonicalItem(
+                            item_id=item.item_id,
+                            flyer_id=item.flyer_id,
+                            name=name,
+                            price=price,
+                            unit=unit,
+                            canonical_category=category.name
+                        )
+                    )
         
-        # Bulk insert canonical items
+        # Bulk create all canonical items
         if canonical_items_to_create:
             await CanonicalItem.insert_many(canonical_items_to_create)
             print(f"Created {len(canonical_items_to_create)} canonical items")
-    '''
 
     async def run_async(self):
         """Run the nightly scraper asynchronously"""
         print("Starting nightly scrape...")
         print(f"Debug mode: {self.debug}")
-        #return
         start_time = datetime.now()
         
         # 1. Get new flyers
@@ -525,12 +496,17 @@ class NightlyScraper:
             print("No new items found. Ending scrape.")
             return
         
-        # 3. Fetch categories for only the new items and get filtered list
-        filtered_items = await self.fetch_category_items(
+        # 3. Fetch categories for only the new items and get filtered item IDs
+        filtered_item_ids = await self.fetch_category_items(
             [item.item_id for item in all_new_items]
         )
         
-        # 4. Create canonical items with filtered list
+        # 4. Get the full Item objects for the filtered IDs
+        filtered_items = await Items.find(
+            {"item_id": {"$in": filtered_item_ids}}
+        ).to_list()
+        
+        # 5. Create canonical items with filtered items
         await self.create_and_process_canonical_items(filtered_items)
 
         # Print timing and stats

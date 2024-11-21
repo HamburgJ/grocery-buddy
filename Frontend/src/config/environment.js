@@ -3,13 +3,17 @@ const environments = {
     API_URL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
     ENABLE_LOGGING: import.meta.env.VITE_ENABLE_LOGGING === 'true',
     STORAGE_TYPE: import.meta.env.VITE_STORAGE_TYPE || 'localStorage',
-    ENABLE_DEBUG: true
+    ENABLE_DEBUG: true,
+    NO_EXTERNAL: import.meta.env.VITE_NO_EXTERNAL === 'true',
+    NO_MERCHANT_IMAGES: import.meta.env.VITE_NO_MERCHANT_IMAGES === 'true'
   },
   production: {
     API_URL: import.meta.env.VITE_API_URL,
     ENABLE_LOGGING: false,
     STORAGE_TYPE: 'localStorage',
-    ENABLE_DEBUG: false
+    ENABLE_DEBUG: false,
+    NO_EXTERNAL: import.meta.env.VITE_NO_EXTERNAL === 'true',
+    NO_MERCHANT_IMAGES: import.meta.env.VITE_NO_MERCHANT_IMAGES === 'true'
   }
 };
 

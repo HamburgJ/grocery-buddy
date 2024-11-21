@@ -1,5 +1,6 @@
 import { useMerchants } from '../../contexts/MerchantContext';
 import { useFilters } from '../../contexts/FilterContext';
+import { env } from '../../config/environment';
 
 export const MerchantSidebar = () => {
   const { merchants } = useMerchants();
@@ -12,7 +13,6 @@ export const MerchantSidebar = () => {
       : [...filters.merchants, merchantIdStr];
     
     if (newMerchants.length === 0) return;
-    console.log('Updating merchants to:', newMerchants);
     updateFilters({ merchants: newMerchants });
   };
 
@@ -29,12 +29,20 @@ export const MerchantSidebar = () => {
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
             <div className="flex items-center gap-2">
-              <img
-                src={merchant.logo_url}
-                alt=""
-                className="w-6 h-6 object-contain"
-              />
-              <span className="text-sm text-gray-700">{merchant.name}</span>
+              {env.NO_EXTERNAL ? (
+                <span className="text-sm text-gray-700">{merchant.name}</span>
+              ) : (
+                <>
+                  {!env.NO_MERCHANT_IMAGES && merchant.logo_url && (
+                    <img
+                      src={merchant.logo_url}
+                      alt=""
+                      className="w-6 h-6 object-contain"
+                    />
+                  )}
+                  <span className="text-sm text-gray-700">{merchant.name}</span>
+                </>
+              )}
             </div>
           </label>
         ))}

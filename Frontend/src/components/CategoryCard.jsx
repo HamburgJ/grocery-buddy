@@ -3,6 +3,8 @@ import { Star, StarOff, X } from 'lucide-react';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { ItemView } from './ItemView';
 import { formatPrice, getPriceValue } from '../utils/priceUtils';
+import { env } from '../config/environment';
+import { getItemImage, getMerchantDisplay } from '../utils/imageUtils';
 
 export const CategoryCard = ({ category }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,6 +73,38 @@ export const CategoryCard = ({ category }) => {
     });
   };
 
+  const imageSection = env.NO_EXTERNAL ? (
+    <div className="p-4 text-center text-gray-500">
+      {category.name}
+    </div>
+  ) : (
+    <div className="w-1/2 min-w-[150px] relative flex flex-col">
+      {/* Main image container */}
+      <div className="flex items-center justify-center">
+        <img
+          src={mainItem.cutout_image_url}
+          alt={mainItem.name}
+          className="w-full max-h-40 object-contain"
+        />
+      </div>
+      
+      {/* Secondary images - with overflow handling */}
+      <div className="grid grid-cols-2 gap-2 mt-2 overflow-hidden relative">
+        {secondaryItems.map((item) => (
+          <div key={item.item_id} className="aspect-square w-full">
+            <img
+              src={item.cutout_image_url}
+              alt={item.name}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        ))}
+        {/* Gradient overlay */}
+        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative h-80">
       {/* Favorite button */}
@@ -94,32 +128,7 @@ export const CategoryCard = ({ category }) => {
         className="p-4 cursor-pointer group relative h-full"
       >
         <div className="flex gap-6 h-full">
-          {/* Left side - Images */}
-          <div className="w-1/2 min-w-[150px] relative flex flex-col">
-            {/* Main image container */}
-            <div className="flex items-center justify-center">
-              <img
-                src={mainItem.cutout_image_url}
-                alt={mainItem.name}
-                className="w-full max-h-40 object-contain"
-              />
-            </div>
-            
-            {/* Secondary images - with overflow handling */}
-            <div className="grid grid-cols-2 gap-2 mt-2 overflow-hidden relative">
-              {secondaryItems.map((item) => (
-                <div key={item.item_id} className="aspect-square w-full">
-                  <img
-                    src={item.cutout_image_url}
-                    alt={item.name}
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-              ))}
-              {/* Gradient overlay */}
-              <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-            </div>
-          </div>
+          {imageSection}
 
           {/* Right side - Info */}
           <div className="flex-grow flex flex-col justify-between">
@@ -191,25 +200,12 @@ export const CategoryCard = ({ category }) => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <select
-                  value={`${sortConfig.field}-${sortConfig.direction}`}
-                  onChange={(e) => {
-                    const [field, direction] = e.target.value.split('-');
-                    setSortConfig({ field, direction });
-                  }}
-                  className="text-sm border rounded-md px-2 py-1"
-                >
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                </select>
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="p-1 hover:bg-gray-100 rounded-full"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <X size={20} />
+              </button>
             </div>
             
             <div className="flex-1 overflow-y-auto">
@@ -268,16 +264,7 @@ export const CategoryCard = ({ category }) => {
                         </td>
                         <td className="p-3">
                           <div className="flex items-center gap-2">
-                            {item.originalItem.merchant?.logo_url && (
-                              <img
-                                src={item.originalItem.merchant.logo_url}
-                                alt={item.originalItem.merchant.name}
-                                className="w-8 h-8 object-contain"
-                              />
-                            )}
-                            <span className="text-xs text-gray-600">
-                              {item.originalItem.merchant?.name}
-                            </span>
+                            {getMerchantDisplay(item.originalItem.merchant)}
                           </div>
                         </td>
                       </tr>

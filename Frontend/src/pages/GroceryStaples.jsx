@@ -36,7 +36,9 @@ const GroceryStaples = () => {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto text-center py-12">
-        <p>Loading staples...</p>
+        <div className="flex justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        </div>
       </div>
     );
   }

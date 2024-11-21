@@ -1,6 +1,8 @@
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useMerchants } from '../../contexts/MerchantContext';
 import { useFilters } from '../../contexts/FilterContext';
+import { getMerchantDisplay } from '../../utils/imageUtils';
+import { env } from '../../config/environment';
 
 export const Sidebar = ({ 
   isOpen, 
@@ -73,12 +75,18 @@ export const Sidebar = ({
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
                     <div className="flex items-center gap-2">
-                      <img
-                        src={merchant.logo_url}
-                        alt=""
-                        className="w-6 h-6 object-contain"
-                      />
-                      <span className="text-sm text-gray-700">{merchant.name}</span>
+                      {env.NO_EXTERNAL ? (
+                        <span className="text-sm text-gray-700">{merchant.name}</span>
+                      ) : (
+                        <>
+                          <img
+                            src={merchant.logo_url}
+                            alt=""
+                            className="w-6 h-6 object-contain"
+                          />
+                          <span className="text-sm text-gray-700">{merchant.name}</span>
+                        </>
+                      )}
                     </div>
                   </label>
                 ))}

@@ -15,8 +15,9 @@ export const MerchantProvider = ({ children }) => {
       try {
         const response = await fetch(`${env.API_URL}/merchants/`);
         const data = await response.json();
-        setMerchants(data);
-        initializeMerchants(data.map(m => m.merchant_id));
+        const sortedMerchants = data.sort((a, b) => a.name.localeCompare(b.name));
+        setMerchants(sortedMerchants);
+        initializeMerchants(sortedMerchants.map(m => m.merchant_id));
       } catch (error) {
         console.error('Failed to fetch merchants', error);
       }
