@@ -3,11 +3,12 @@
 CATEGORY_EXCLUSIONS = {
     # Fruits
     # Fruits
+    'avocados': ['guacamole'],
     'apples': ['cider', 'pineapple', 'apple juice', 'apple sauce', 'sauce', 'applesauce', 'sauces', 'crabapple', 'apple pie', 'apple turnover', 'apple muffin', 'apple cake', 'apple cider', 'apple butter', 'candy apple', 'caramel apple', 'apple chips', 'dried apple', 'apple danish', 'apple strudel'],
     
     'grapes': ['grapefruit', 'grape tomato', 'grape juice', 'grape leaves', 'grape jelly', 'grape soda', 'grape candy', 'grape popsicle', 'grape flavored', 'grape drink', 'grape medicine'],
     
-    'oranges': ['orange juice', 'orange sauce', 'orange chocolate', 'orange pepper', 'orange soda', 'orange drink', 'orange candy', 'orange popsicle', 'orange cream', 'orange marmalade', 'orange chicken', 'mandarin orange', 'orange extract', 'orange zest', 'orange peel'],
+    'oranges': ['chocolate', 'jelly','marmalade','pekoe','orange juice', 'orange sauce', 'orange chocolate', 'orange pepper', 'orange soda', 'orange drink', 'orange candy', 'orange popsicle', 'orange cream', 'orange marmalade', 'orange chicken', 'mandarin orange', 'orange extract', 'orange zest', 'orange peel'],
     
     'lemons': ['lemon juice', 'lemonade', 'lemon pepper', 'lemon cake', 'lemon pie', 'lemon bar', 'lemon candy', 'lemon extract', 'lemon zest', 'lemon peel', 'lemon sauce', 'lemon chicken', 'lemon tart', 'lemon curd'],
     
@@ -39,7 +40,7 @@ CATEGORY_EXCLUSIONS = {
                  'tomato concentrate', 'diced tomatoes', 'diced tomato',
                  'tomato ketchup', 'unico tomatoes', 'diced', 'no salt added', 
                  'canned', 'sardine', 'campbell', 'soup', 'unico', 'passata', 'aurora', 'campbells',
-                 'campbell s',],
+                 'campbell s', 'selection', 'life smart', 'great value', 'aylmer', 'chopped', 'salsa',],
     
     'peppers': ['pepper spice', 'black pepper', 'white pepper', 'peppercorn', 'pepper sauce', 'pepper seasoning', 'pepper grinder', 'lemon pepper', 'cayenne pepper', 'chile pepper', 'pepper blend'],
     
@@ -92,7 +93,7 @@ CATEGORY_EXCLUSIONS = {
     'sweet potatoes': ['sweet potato fries', 'sweet potato pie', 'sweet potato chips', 'mashed sweet potato'],
     
     # Dairy
-    'butter': ["pasty", "dough", "croissant","tart","i can't believe it's not butter", "i can't believe it's not butter!", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken', 'margarine', 'garlic butter', ],
+    'butter': ["twists", "puff", "pasty", "dough", "croissant","tart","i can't believe it's not butter", "i can't believe it's not butter!", 'not butter', 'butter lettuce', 'butternut', 'peanut butter', 'almond butter', 'body butter', 'butter chicken', 'margarine', 'garlic butter', ],
     'cream': ['ice cream', 'cream sauce', 'cream soda', 'cream cheese', 'cream corn', 'creamed coconut'],
     'milk': ['milkshake','flavoured milk','milk tea', 'biscuit','milk chocolate', 'milkshake', 'coconut milk', 'almond milk', 'soy milk', 'oat milk', 'chocolate milk', 'milk bone', 'milk-bone', 'milk baked', 'evaporated milk', 'milk chocolate', 'condensed milk', 'dairy milk', 'muscle milk'],
     'eggs': ['just egg', 'quail egg', 'quail eggs', 'egg salad', 'egg roll', 'egg soup', 'egg noodles', 'egg casserole', 'egg bread', 'egg muffins', 'egg scramble', 'egg white', 'egg white liquid', 'egg white powder', 'egg nog'],
@@ -125,8 +126,8 @@ CATEGORY_EXCLUSIONS = {
     'salt': ['salt substitute', 'salt water', 'epsom salt'],
     'water': ['water chestnuts', 'water crackers', 'watermelon'],
     'chocolate': ['chocolate milk', 'hot chocolate', 'chocolate sauce', 'chocolate syrup'],
-    'bread': ['breadcrumbs', 'breadsticks', 'bread pudding', 'breaded'],
-    'cheese': ['calzones', 'mushroom','cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored', 'mac and cheese', 'ham and cheese', 'queso', 'chips', 'cheese flavoured'],
+    'bread': ['garlic', 'crumb', 'breadcrumbs', 'breadsticks', 'bread pudding', 'breaded'],
+    'cheese': ['cream cheese', 'cream', 'cottage', 'cake', 'bun', 'buns', 'calzones', 'mushroom','cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored', 'mac and cheese', 'ham and cheese', 'queso', 'chips', 'cheese flavoured'],
     'cereal': ['cereal bars', 'cereal bar'],
     'peanut butter': ['peanut butter cups', 'peanut butter cookies', 'peanut butter filled', 'pretzel']  ,
     'cookies': ['crackers', 'dough']

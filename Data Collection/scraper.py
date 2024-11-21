@@ -359,8 +359,6 @@ class NightlyScraper:
         
         return filtered_items
 
-
-
     async def create_and_process_canonical_items(self, items: List[Items]):
         """Create and process canonical items for new items only"""
         print("Creating and processing canonical items...")
@@ -435,24 +433,53 @@ class NightlyScraper:
             
             if len(split_names) > 1:
                 # Process multi-item entries
+                split_matches = {}  # Store all matches for each split
+                used_categories = set()  # Track assigned categories
+                
+                # First, get all potential matches for each split
                 for split_name in split_names:
                     valid_matches = get_category_matches(
                         split_name, 
                         relevant_categories,
                         full_name=name
                     )
+                    split_matches[split_name] = sorted(valid_matches, key=lambda x: x[1], reverse=True)
+                
+                # Assign categories greedily based on best matches
+                while split_matches:
+                    best_score = -1
+                    best_split = None
+                    best_category = None
                     
-                    for category, score in valid_matches:
-                        canonical_items_to_create.append(
-                            CanonicalItem(
-                                item_id=item.item_id,
-                                flyer_id=item.flyer_id,
-                                name=split_name,
-                                price=price,
-                                unit=unit,
-                                canonical_category=category.name
-                            )
+                    # Find the best remaining match across all splits
+                    for split_name, matches in split_matches.items():
+                        # Filter out already used categories
+                        available_matches = [m for m in matches if m[0].name not in used_categories]
+                        if available_matches:
+                            score = available_matches[0][1]
+                            if score > best_score:
+                                best_score = score
+                                best_split = split_name
+                                best_category = available_matches[0][0]
+                    
+                    if best_split is None:
+                        break
+                        
+                    # Create canonical item for best match
+                    canonical_items_to_create.append(
+                        CanonicalItem(
+                            item_id=item.item_id,
+                            flyer_id=item.flyer_id,
+                            name=best_split,
+                            price=price,
+                            unit=unit,
+                            canonical_category=best_category.name
                         )
+                    )
+                    
+                    # Mark category as used and remove processed split
+                    used_categories.add(best_category.name)
+                    del split_matches[best_split]
             else:
                 # Process single-item entries
                 valid_matches = get_category_matches(
@@ -477,6 +504,58 @@ class NightlyScraper:
         if canonical_items_to_create:
             await CanonicalItem.insert_many(canonical_items_to_create)
             print(f"Created {len(canonical_items_to_create)} canonical items")
+
+    async def deduplicate_canonical_items(self, new_item_ids: List[str]):
+        """
+        Remove duplicate canonical items where name, price, and merchant are identical.
+        Only considers items that were just created in this scrape run.
+        """
+        print("Deduplicating canonical items...")
+        
+        # Get only the canonical items created in this run
+        pipeline = [
+            {
+                "$match": {
+                    "item_id": {"$in": new_item_ids}
+                }
+            },
+            {
+                "$lookup": {
+                    "from": "Items",
+                    "localField": "item_id",
+                    "foreignField": "item_id",
+                    "as": "item"
+                }
+            },
+            {
+                "$unwind": "$item"
+            }
+        ]
+        
+        canonical_items = await CanonicalItem.aggregate(pipeline).to_list()
+        
+        # Group by name, price, and merchant_id
+        duplicates = {}
+        for item in canonical_items:
+            key = (
+                item['name'].lower().strip(),
+                item['price'],
+                item['item']['merchant_id']
+            )
+            if key not in duplicates:
+                duplicates[key] = []
+            duplicates[key].append(item)
+        
+        # Find and delete duplicates
+        items_to_delete = []
+        for key, items in duplicates.items():
+            if len(items) > 1:
+                # Keep the first one, delete the rest
+                items_to_delete.extend([item['_id'] for item in items[1:]])
+        
+        if items_to_delete:
+            await CanonicalItem.find({"_id": {"$in": items_to_delete}}).delete()
+            print(f"Deleted {len(items_to_delete)} duplicate canonical items")
 
     async def run_async(self):
         """Run the nightly scraper asynchronously"""
@@ -508,7 +587,10 @@ class NightlyScraper:
         
         # 5. Create canonical items with filtered items
         await self.create_and_process_canonical_items(filtered_items)
-
+        
+        # 6. Deduplicate canonical items
+        await self.deduplicate_canonical_items(filtered_item_ids)
+        
         # Print timing and stats
         end_time = datetime.now()
         duration = end_time - start_time
