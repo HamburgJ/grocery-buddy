@@ -40,7 +40,7 @@ const processText = (text, replacements) => {
 export const getPriceValue = (item, categoryName, cat) => {
   // Special cases where we want to prioritize weight-based pricing
   const weightPriorityCategories = ['Meat & Seafood'];
-  const weightPriorityItems = ['grapes', 'grapes red', 'apples'];
+  const weightPriorityItems = ['grapes', 'grapes red', 'apples', 'tomatoes'];
   
   // Check if this item/category should prioritize weight-based pricing
   const shouldPrioritizeWeight = 

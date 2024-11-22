@@ -3,7 +3,6 @@ from flipp_api.models import Merchants, Scrapers, Flyers, Items, Categories, Ite
 from flipp_api.db import init_db
 from flipp_api.backflipp import *
 from datetime import datetime
-from typing import List
 import ftfy
 import re
 import nltk
@@ -15,7 +14,7 @@ from scipy.spatial.distance import cosine
 from price_parser import parse_value
 
 
-def similarity(text: str, category: str):
+def similarity(text, category):
     """
     Calculate the cosine similarity between two text strings.
     First checks against exclusion rules.
@@ -37,7 +36,11 @@ def similarity(text: str, category: str):
     return 0.5 + 0.5 * cosine(v1, v2)
 
 
-def find_matches(text1, categories, threshold=0.5):
+def find_matches(
+    text1, 
+    categories, 
+    threshold=0.5
+):
     text1 = text1.lower()
     matches = []
     
@@ -123,13 +126,9 @@ class NightlyScraper:
             
             # First collect all new flyers across postal codes
             all_new_flyers = []
-            all_new_flyer_ids = []
-            
-            # Get all existing flyers for this merchant
-            existing_flyer_ids = {
-                flyer.flyer_id 
-                for flyer in await Flyers.find({"merchant_id": merchant.merchant_id}).to_list()
-            }
+            all_new_flyer_ids = set()
+            for flyer in await Flyers.find({"merchant_id": merchant.merchant_id}).to_list():
+                all_new_flyer_ids.add(flyer.flyer_id)
             
             # Get current flyers for this merchant's postal codes
             for postal_code in postal_codes:
@@ -138,8 +137,7 @@ class NightlyScraper:
                 # Filter to only new flyers that aren't already in DB or current batch
                 new_flyer_ids = [
                     fid for fid in flyer_ids 
-                    if fid not in existing_flyer_ids and 
-                    fid not in all_new_flyer_ids
+                    if fid not in all_new_flyer_ids
                 ]
                 
                 if not new_flyer_ids:
@@ -160,7 +158,7 @@ class NightlyScraper:
                 ]
                 
                 all_new_flyers.extend(new_flyers)
-                all_new_flyer_ids.extend(new_flyer_ids)
+                all_new_flyer_ids.update(new_flyer_ids)
 
             # Insert all new flyers at once
             if all_new_flyers:
@@ -198,7 +196,7 @@ class NightlyScraper:
             scraper.last_run = datetime.now()
             await scraper.save()
 
-    async def process_flyer_items(self, postal_code: str) -> List[Items]:
+    async def process_flyer_items(self, postal_code):
         print(f"Processing flyer items for {postal_code}...")
         
         # Get unprocessed flyers and their items in one query
@@ -290,7 +288,7 @@ class NightlyScraper:
 
         return all_new_items
 
-    async def fetch_category_items(self, new_item_ids: List[str]):
+    async def fetch_category_items(self, new_item_ids):
         """Fetch category items only for new items found in this scrape"""
         print("Fetching category items...")
         
@@ -359,14 +357,14 @@ class NightlyScraper:
         
         return filtered_items
 
-    async def create_and_process_canonical_items(self, items: List[Items]):
+    async def create_and_process_canonical_items(self, items):
         """Create and process canonical items for new items only"""
         print("Creating and processing canonical items...")
         
         # Get all canonical categories for reference
         canonical_categories = await CanonicalCategory.find_all().to_list()
-        
-        def check_exclusions(text: str, category: str):
+                
+        def check_exclusions(text, category):
             """Check if any exclusions apply to this text-category pair"""
             category_lower = category.lower()
             text_lower = text.lower()
@@ -377,7 +375,11 @@ class NightlyScraper:
                         return True
             return False
 
-        def get_category_matches(text: str, canonical_categories: List[CanonicalCategory], full_name: str = "") -> List[tuple[CanonicalCategory, float]]:
+        def get_category_matches(
+            text, 
+            canonical_categories, 
+            full_name=""
+        ):
             """Get valid category matches for a text, considering exclusions"""
             # First check if any exclusions apply to the full item name
             excluded_categories = {
@@ -505,7 +507,7 @@ class NightlyScraper:
             await CanonicalItem.insert_many(canonical_items_to_create)
             print(f"Created {len(canonical_items_to_create)} canonical items")
 
-    async def deduplicate_canonical_items(self, new_item_ids: List[str]):
+    async def deduplicate_canonical_items(self, new_item_ids):
         """
         Remove duplicate canonical items where name, price, and merchant are identical.
         Only considers items that were just created in this scrape run.
