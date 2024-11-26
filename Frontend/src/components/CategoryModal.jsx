@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { formatPrice, getPriceValue } from '../utils/priceUtils';
+import { env } from '../config/environment';
 
 export const CategoryModal = ({ category, isOpen, onClose }) => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -110,7 +111,7 @@ export const CategoryModal = ({ category, isOpen, onClose }) => {
                     </td>
                     <td className="p-3">
                       <div className="flex items-center gap-2">
-                        {item.originalItem.merchant?.logo_url && (
+                        {!env.NO_EXTERNAL && !env.NO_MERCHANT_IMAGES && item.originalItem.merchant?.logo_url && (
                           <img
                             src={item.originalItem.merchant.logo_url}
                             alt={item.originalItem.merchant.name}

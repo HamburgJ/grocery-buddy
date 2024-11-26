@@ -26,7 +26,6 @@ export const Navbar = () => {
   const { favorites } = useFavorites();
   const location = useLocation();
 
-  // Add effect to close menu on route change
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location]);

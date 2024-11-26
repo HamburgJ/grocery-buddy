@@ -20,10 +20,18 @@ const Search = () => {
   const [error, setError] = useState('');
   const [metadata, setMetadata] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingFilters, setPendingFilters] = useState(null);
   const location = useLocation();
 
   const currentPage = parseInt(searchParams.get('page')) || 1;
   const searchTerm = searchParams.get('q') || '';
+
+  useEffect(() => {
+    if (pendingFilters) {
+      loadCategories();
+      setPendingFilters(null);
+    }
+  }, [pendingFilters]);
 
   useEffect(() => {
     loadCategories();
@@ -67,6 +75,11 @@ const Search = () => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('page', page.toString());
     setSearchParams(newParams);
+  };
+
+  const handleApplyFilters = () => {
+    setPendingFilters(filters);
+    setSidebarOpen(false);
   };
 
   console.log('categories', categories);
@@ -142,7 +155,7 @@ const Search = () => {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         categories={metadata?.validCategories || []}
-        onApplyFilters={() => setSidebarOpen(false)}
+        onApplyFilters={handleApplyFilters}
       />
     </div>
   );

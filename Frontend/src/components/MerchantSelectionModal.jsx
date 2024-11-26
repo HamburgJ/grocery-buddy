@@ -90,12 +90,16 @@ export const MerchantSelectionModal = ({ onComplete }) => {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <div className="flex-1 flex justify-center">
-                <img
-                  src={merchant.logo_url}
-                  alt={merchant.name}
-                  className="w-16 h-16 object-contain"
-                  style={{ userSelect: 'none' }}
-                />
+                {!env.NO_EXTERNAL && !env.NO_MERCHANT_IMAGES ? (
+                  <img
+                    src={merchant.logo_url}
+                    alt={merchant.name}
+                    className="w-16 h-16 object-contain"
+                    style={{ userSelect: 'none' }}
+                  />
+                ) : (
+                  <span className="text-sm text-gray-700">{merchant.name}</span>
+                )}
               </div>
             </label>
           ))}

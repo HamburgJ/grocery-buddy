@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Star, StarOff, ChevronDown, ChevronRight } from 'lucide-react';
 import { useFavorites } from '../contexts/FavoritesContext';
 import { CategoryModal } from './CategoryModal';
-import { formatPrice } from '../utils/priceUtils';
+import { formatPrice, getPriceValue } from '../utils/priceUtils';
 import { env } from '../config/environment';
 
 export const ListCard = ({ category, isExpanded }) => {

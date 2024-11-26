@@ -8,11 +8,10 @@ from functools import wraps
 import logging
 from requests.exceptions import RequestException
 
-# Add retry configuration
-MAX_RETRIES = 10  # Increased to allow for more retries
-BASE_RETRY_DELAY = 1  # Initial delay in seconds
-MAX_RETRY_DELAY = 300  # Maximum delay of 5 minutes (300 seconds)
-RATE_LIMIT_DELAY = 0.5  # seconds between requests
+MAX_RETRIES = 10
+BASE_RETRY_DELAY = 1
+MAX_RETRY_DELAY = 300
+RATE_LIMIT_DELAY = 0.5
 
 def with_retry_and_throttle(func):
     """Decorator to add retry logic and throttling to API calls"""

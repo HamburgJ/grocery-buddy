@@ -79,11 +79,13 @@ export const Sidebar = ({
                         <span className="text-sm text-gray-700">{merchant.name}</span>
                       ) : (
                         <>
-                          <img
-                            src={merchant.logo_url}
-                            alt=""
-                            className="w-6 h-6 object-contain"
-                          />
+                          {!env.NO_MERCHANT_IMAGES && merchant.logo_url && (
+                            <img
+                              src={merchant.logo_url}
+                              alt=""
+                              className="w-6 h-6 object-contain"
+                            />
+                          )}
                           <span className="text-sm text-gray-700">{merchant.name}</span>
                         </>
                       )}

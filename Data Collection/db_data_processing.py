@@ -1,4 +1,4 @@
-
+# Deprecated file
 from flipp_api.models import Merchants, Scrapers, Flyers, Items, Categories, ItemCategorizations, CanonicalCategory, CanonicalItem
 from flipp_api.db import init_db
 import nltk
@@ -10,6 +10,7 @@ import ftfy
 from constants import *
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.spatial.distance import cosine
+
 
 def similarity(text1, text2):
     """

@@ -14,28 +14,6 @@ from scipy.spatial.distance import cosine
 from price_parser import parse_value
 
 
-def similarity(text, category):
-    """
-    Calculate the cosine similarity between two text strings.
-    First checks against exclusion rules.
-    """
-    # Check exclusions first
-    category_lower = category.lower()
-    text_lower = text.lower()
-    
-    if CATEGORY_EXCLUSIONS.get(category_lower):
-        for exclusion in CATEGORY_EXCLUSIONS.get(category_lower):
-            if exclusion in text_lower:
-                return -1
-
-    # If no exclusions match, proceed with normal similarity calculation
-    vectorizer = TfidfVectorizer()
-    X = vectorizer.fit_transform([category, text])
-    v1 = X[0].toarray().flatten()
-    v2 = X[1].toarray().flatten()
-    return 0.5 + 0.5 * cosine(v1, v2)
-
-
 def find_matches(
     text1, 
     categories, 
@@ -104,7 +82,7 @@ postal_codes = ['N2G4G7', 'M5R2E3', 'N2L3G1', 'K7L3N6']
 
 class NightlyScraper:
     def __init__(self):
-        self.debug = False  # Add debug flag
+        self.debug = False
         loop = asyncio.get_event_loop()
         if loop.is_closed():
             loop = asyncio.new_event_loop()

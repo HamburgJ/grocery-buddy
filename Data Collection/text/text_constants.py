@@ -126,7 +126,7 @@ CATEGORY_EXCLUSIONS = {
     'salt': ['salt substitute', 'salt water', 'epsom salt'],
     'water': ['water chestnuts', 'water crackers', 'watermelon'],
     'chocolate': ['chocolate milk', 'hot chocolate', 'chocolate sauce', 'chocolate syrup'],
-    'bread': ['garlic', 'crumb', 'breadcrumbs', 'breadsticks', 'bread pudding', 'breaded'],
+    'bread': ['garlic', 'crumb', 'breadcrumbs', 'breadsticks', 'bread pudding', 'breaded', 'ginger', 'sweet', 'breaded'],
     'cheese': ['cream cheese', 'cream', 'cottage', 'cake', 'bun', 'buns', 'calzones', 'mushroom','cheese dip', 'cheese sauce', 'cheese spread', 'cheese flavored', 'mac and cheese', 'ham and cheese', 'queso', 'chips', 'cheese flavoured'],
     'cereal': ['cereal bars', 'cereal bar'],
     'peanut butter': ['peanut butter cups', 'peanut butter cookies', 'peanut butter filled', 'pretzel']  ,

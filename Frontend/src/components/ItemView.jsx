@@ -1,6 +1,7 @@
 import { X } from 'lucide-react';
 import { useState } from 'react';
 import { formatPrice } from '../utils/priceUtils';
+import { env } from '../config/environment';
 
 export const ItemView = ({ item, category, onClose }) => {
   const [isImageExpanded, setIsImageExpanded] = useState(false);
@@ -83,7 +84,7 @@ export const ItemView = ({ item, category, onClose }) => {
                   <div className="border-t pt-4">
                     <h4 className="font-semibold mb-2">Merchant</h4>
                     <div className="flex items-center gap-2">
-                      {item.merchant.logo_url && (
+                      {!env.NO_EXTERNAL && !env.NO_MERCHANT_IMAGES && item.merchant.logo_url && (
                         <img
                           src={item.merchant.logo_url}
                           alt={item.merchant.name || 'Merchant'}

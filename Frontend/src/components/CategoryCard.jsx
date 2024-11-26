@@ -15,37 +15,33 @@ export const CategoryCard = ({ category }) => {
 
   // Filter out items without originalItem first
   const validItems = category.canonicalItems;
-  console.log('category', category);
   
   // Only proceed with sorting if we have valid items
   if (validItems.length === 0) {
-    return null; // or return some placeholder/error state
+    return null;
   }
   
-  // Sort items by price before getting mainItem and secondaryItems
+  // Sort items by price before getting mainItem
   const sortedItems = [...validItems].sort((a, b) => 
     getPriceValue(a, category.name, category.cat) - getPriceValue(b, category.name, category.cat)
   );
   
   const mainItem = sortedItems[0].originalItem;
-  const secondaryItems = sortedItems.slice(1).map(item => item.originalItem);
   
-  // Update price calculations to use validItems
+  // Price calculations
   const sortedPrices = [...new Set(validItems.map(i => 
     getPriceValue(i, category.name, category.cat)
   ))].sort((a, b) => a - b);
   
   const bestPrice = sortedPrices[0];
   const worstPrice = sortedPrices[sortedPrices.length - 1];
-  console.log('validItems', validItems);
+  
   const bestDeals = validItems
     .filter(i => getPriceValue(i, category.name, category.cat) === bestPrice)
     .map(i => i.originalItem)
     .filter((item, index, self) => 
       index === self.findIndex(t => t.merchant?.name === item.merchant?.name)
     );
-
-
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -79,40 +75,8 @@ export const CategoryCard = ({ category }) => {
     });
   };
 
-  const imageSection = env.NO_EXTERNAL ? (
-    <div className="p-4 text-center text-gray-500">
-      {category.name}
-    </div>
-  ) : (
-    <div className="w-1/2 min-w-[150px] relative flex flex-col">
-      {/* Main image container */}
-      <div className="flex items-center justify-center">
-        <img
-          src={mainItem.cutout_image_url}
-          alt={mainItem.name}
-          className="w-full max-h-40 object-contain"
-        />
-      </div>
-      
-      {/* Secondary images - with overflow handling */}
-      <div className="grid grid-cols-2 gap-2 mt-2 overflow-hidden relative">
-        {secondaryItems.map((item) => (
-          <div key={item.item_id} className="aspect-square w-full">
-            <img
-              src={item.cutout_image_url}
-              alt={item.name}
-              className="w-full h-full object-contain"
-            />
-          </div>
-        ))}
-        {/* Gradient overlay */}
-        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white to-transparent pointer-events-none" />
-      </div>
-    </div>
-  );
-
   return (
-    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative h-80">
+    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow relative h-48">
       {/* Favorite button */}
       <button
         onClick={(e) => {
@@ -133,13 +97,28 @@ export const CategoryCard = ({ category }) => {
         onClick={() => setIsModalOpen(true)}
         className="p-4 cursor-pointer group relative h-full"
       >
-        <div className="flex gap-6 h-full">
-          {imageSection}
+        <div className="flex gap-4 h-full">
+          {env.NO_EXTERNAL ? (
+            <div className="p-4 text-center text-gray-500">
+              {category.name}
+            </div>
+          ) : (
+            <div className="w-1/3 relative">
+              <div className="h-32 flex items-center justify-center">
+                <img
+                  src={mainItem.cutout_image_url}
+                  alt={mainItem.name}
+                  className="max-h-full max-w-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Right side - Info */}
-          <div className="flex-grow flex flex-col justify-between">
+          <div className="flex-1 flex flex-col justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-1">
+              <h2 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-1">
                 {category.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
               </h2>
               
