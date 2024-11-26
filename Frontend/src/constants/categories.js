@@ -1,1 +1,1 @@
-export const VALID_CATEGORIES = ['Pantry', 'Deli', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen']; 
+export const VALID_CATEGORIES = ['Pantry', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen']; 

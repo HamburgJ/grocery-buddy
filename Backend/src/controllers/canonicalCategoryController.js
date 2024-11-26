@@ -3,9 +3,8 @@ const ItemCategorization = require('../models/itemCategorizationModel');
 const CanonicalItem = require('../models/canonicalItemModel');
 const CanonicalCategory = require('../models/canonicalCategoryModel');
 const mongoose = require('mongoose');
-const VALID_CATEGORIES = ['Pantry', 'Deli', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen'];
+const VALID_CATEGORIES = ['Pantry', 'Meat & Seafood', 'Dairy & Eggs', 'Produce', 'Frozen'];
 
-// Add this lookup stage to both controller methods where we lookup Items
 const getItemsLookupPipeline = (merchantIds) => [
   {
     $lookup: {
@@ -18,7 +17,6 @@ const getItemsLookupPipeline = (merchantIds) => [
             ...(merchantIds ? { merchant_id: { $in: merchantIds } } : {})
           }
         },
-        // Add merchant lookup
         {
           $lookup: {
             from: 'Merchants',
@@ -33,14 +31,12 @@ const getItemsLookupPipeline = (merchantIds) => [
             as: 'merchant'
           }
         },
-        // Unwind merchant array to single object
         {
           $unwind: {
             path: '$merchant',
             preserveNullAndEmptyArrays: true
           }
         },
-        // Add flyer lookup
         {
           $lookup: {
             from: 'Flyers',

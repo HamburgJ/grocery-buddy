@@ -3,6 +3,7 @@ import { useMerchants } from '../../contexts/MerchantContext';
 import { useFilters } from '../../contexts/FilterContext';
 import { getMerchantDisplay } from '../../utils/imageUtils';
 import { env } from '../../config/environment';
+import { useState, useEffect } from 'react';
 
 export const Sidebar = ({ 
   isOpen, 
@@ -13,22 +14,34 @@ export const Sidebar = ({
 }) => {
   const { merchants } = useMerchants();
   const { filters, updateFilters } = useFilters();
+  const [localFilters, setLocalFilters] = useState(filters);
+
+  useEffect(() => {
+    if (isOpen) {
+      setLocalFilters(filters);
+    }
+  }, [isOpen, filters]);
 
   const handleCategoryChange = (category) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter(c => c !== category)
-      : [...filters.categories, category];
-    updateFilters({ categories: newCategories });
+    const newCategories = localFilters.categories.includes(category)
+      ? localFilters.categories.filter(c => c !== category)
+      : [...localFilters.categories, category];
+    setLocalFilters({ ...localFilters, categories: newCategories });
   };
 
   const handleToggleMerchant = (merchantId) => {
     const merchantIdStr = merchantId.toString();
-    const newMerchants = filters.merchants.includes(merchantIdStr)
-      ? filters.merchants.filter(id => id !== merchantIdStr)
-      : [...filters.merchants, merchantIdStr];
+    const newMerchants = localFilters.merchants.includes(merchantIdStr)
+      ? localFilters.merchants.filter(id => id !== merchantIdStr)
+      : [...localFilters.merchants, merchantIdStr];
     
     if (newMerchants.length === 0) return;
-    updateFilters({ merchants: newMerchants });
+    setLocalFilters({ ...localFilters, merchants: newMerchants });
+  };
+
+  const handleApplyFilters = () => {
+    updateFilters(localFilters);
+    onApplyFilters();
   };
 
   return (
@@ -51,7 +64,7 @@ export const Sidebar = ({
               <label key={category} className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={filters.categories.includes(category)}
+                  checked={localFilters.categories.includes(category)}
                   onChange={() => handleCategoryChange(category)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
@@ -70,7 +83,7 @@ export const Sidebar = ({
                   <label key={merchant.merchant_id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={filters.merchants.includes(merchant.merchant_id.toString())}
+                      checked={localFilters.merchants.includes(merchant.merchant_id.toString())}
                       onChange={() => handleToggleMerchant(merchant.merchant_id)}
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
@@ -98,7 +111,7 @@ export const Sidebar = ({
         )}
 
         <button
-          onClick={onApplyFilters}
+          onClick={handleApplyFilters}
           className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors mt-4"
         >
           Apply Filters

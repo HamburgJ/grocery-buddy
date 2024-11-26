@@ -1,50 +1,66 @@
 # Grocery Buddy - Smart Grocery Deal Finder 🛒
 
-A full-stack application that analyzes digital flyer data to help users find the best grocery deals across multiple Canadian retailers.
+A full-stack application that processes digital flyer data to help users find the best grocery deals across Canadian retailers.
 
 ## 🌟 Key Features
 
-- **Smart Price Analysis**: 
-  - Normalizes prices across different units (lb/kg/g/oz)
-  - Handles multi-item deals ("2 for $5")
-  - Processes bilingual price formats
-  - Converts all measurements to consistent units for comparison
+### Price Analysis
+- Unit normalization (lb/kg/g/oz)
+- Multi-item deal parsing ("2 for $5", "3/$10")
+- Bilingual price format support (English/French)
+- Package unit handling (each/pack/box)
 
-- **Intelligent Categorization**:
-  - TF-IDF based text similarity matching
-  - Extensive category exclusion system
-  - Handles product variants and prepared foods
-  - Processes multi-item listings
+### Smart Categorization
+- Custom text similarity matching
+- Extensive exclusion rules
+- Multi-item listing detection
+- Product variant handling
 
-- **Data Processing Pipeline**:
-  - Automated deduplication system
-  - Price normalization across retailers
-  - Canonical category mapping
-  - Async data processing
+### Data Processing
+- Async MongoDB pipeline
+- Real-time deduplication
+- Price normalization engine
+- Canonical category system
 
 ## 🏗️ Technology Stack
 
 ### Backend
 - Python 3.12
 - MongoDB with Beanie ODM
-- scikit-learn for text processing
-- Custom price parsing engine
+- NLTK & scikit-learn for text processing
+- Custom regex-based price parser
 
 ### Frontend
 - React 18
 - TailwindCSS
 - React Router v6
 
-## 💾 Data Processing
+## 💾 Technical Details
 
-### Price Normalization
-- Converts all weight units to pounds for consistency
-- Handles package units (each, pack, box)
-- Processes bulk pricing and multi-item deals
-- Supports both English and French price formats
+### Price Processing
+- Regex-based price extraction
+- Multi-currency format support
+- Unit conversion system
+- Bulk pricing analysis
 
 ### Category System
-- Maintains canonical categories for consistent comparison
-- Extensive exclusion rules for accurate categorization
-- Smart handling of product variants
-- Multi-item listing separation
+- TF-IDF based similarity matching
+- Hierarchical category mapping
+- Automated variant detection
+- Custom exclusion rules
+
+## 🚀 Setup
+
+[Setup instructions...]
+
+## 🤝 Contributing
+
+[Contributing guidelines...]
+
+## 📝 License
+
+MIT License - see LICENSE file for details.
+
+---
+
+**Note**: This project is for educational purposes only.

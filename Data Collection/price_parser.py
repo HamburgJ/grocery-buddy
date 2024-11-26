@@ -148,8 +148,8 @@ def is_unit_conversion(price_text: str) -> bool:
         r'/kg\s+\d+\.?\d*/lb',
         r'lb\s+\d+\.?\d*/kg',
         r'kg\s+\d+\.?\d*/lb',
-        r'(?:lb|kg).*?\$?\d+\.?\d*/(?:lb|kg)',  # Handles "kg., $1.99/lb." pattern
-        r'/lb\s+\$?\d+\.?\d*\s*/kg',  # Added for "/lb $26.61 /KG" pattern
+        r'(?:lb|kg).*?\$?\d+\.?\d*/(?:lb|kg)', 
+        r'/lb\s+\$?\d+\.?\d*\s*/kg',
         r'/kg\s+\$?\d+\.?\d*\s*/lb'
     ]
     return any(re.search(pattern, price_text.lower()) for pattern in conversion_patterns)
@@ -167,7 +167,7 @@ def is_simple_price_with_unit(price_text: str) -> bool:
     """Check if this is a simple price with unit (not multi)"""
     patterns = [
         r'^(?:or|ou)\s+[\$\d]+(?:\.\d+)?\s*(?:each|ea|unité|l\'unité)(?:\s|$|\.)',
-        r'^(?:or|ou)\s+[\$\d]+(?:\.\d+)?/(?:each|ea|unité|l\'unité)(?:\s|$|\.)',  # Added for "or 1.39/Ea" pattern
+        r'^(?:or|ou)\s+[\$\d]+(?:\.\d+)?/(?:each|ea|unité|l\'unité)(?:\s|$|\.)',
         r'^[\$\d]+(?:\.\d+)?\s*(?:each|ea|unité|l\'unité)(?:\s|$|\.)',
         r'(?:ea|each)\s+when\s+you\s+buy',
         r'EA\s+OR\s+BUY\s+\d+\s+\$?\d+(?:\.\d+)?$'
