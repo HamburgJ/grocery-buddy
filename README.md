@@ -1,66 +1,38 @@
-# Grocery Buddy - Smart Grocery Deal Finder 🛒
+# Grocery Buddy 🛒
 
-A full-stack application that processes digital flyer data to help users find the best grocery deals across Canadian retailers.
+[![Live Demo](https://img.shields.io/badge/demo-live-success)](https://hamburgj.github.io/grocery-buddy/)
 
-## 🌟 Key Features
+A smart grocery deal finder that helps Canadians compare prices across multiple store flyers automatically. Find the best deals without the hassle of manual comparison! Grocery Buddy processes 1000s of items weekly from major Ontario retailers, with prices updating in real-time as new flyers are released.
 
-### Price Analysis
-- Unit normalization (lb/kg/g/oz)
-- Multi-item deal parsing ("2 for $5", "3/$10")
-- Bilingual price format support (English/French)
-- Package unit handling (each/pack/box)
+## 📱 Usage
 
-### Smart Categorization
-- Custom text similarity matching
-- Extensive exclusion rules
-- Multi-item listing detection
-- Product variant handling
+1. Visit [Grocery Buddy](https://hamburgj.github.io/grocery-buddy/)
+2. Search for products or browse categories
+3. Compare prices across different stores
+4. View detailed product information and unit prices
 
-### Data Processing
-- Async MongoDB pipeline
-- Real-time deduplication
-- Price normalization engine
-- Canonical category system
+## ✨ Features
 
-## 🏗️ Technology Stack
+- **Smart Price Comparison**
+  - Automatically normalizes units (lb/kg/g/oz)
+  - Handles multi-item deals ("2 for $5")
+  - Supports English and French pricing formats
+  - Compares package sizes fairly
 
-### Backend
-- Python 3.12
-- MongoDB with Beanie ODM
-- NLTK & scikit-learn for text processing
-- Custom regex-based price parser
+- **Intelligent Search**
+  - Find similar products across stores
+  - Browse by category
+  - Filter by store location
+  - Sort by unit price or total price
+
+## 🛠️ Tech Stack
 
 ### Frontend
-- React 18
-- TailwindCSS
-- React Router v6
+- React
+- Material UI 3
 
-## 💾 Technical Details
-
-### Price Processing
-- Regex-based price extraction
-- Multi-currency format support
-- Unit conversion system
-- Bulk pricing analysis
-
-### Category System
-- TF-IDF based similarity matching
-- Hierarchical category mapping
-- Automated variant detection
-- Custom exclusion rules
-
-## 🚀 Setup
-
-[Setup instructions...]
-
-## 🤝 Contributing
-
-[Contributing guidelines...]
-
-## 📝 License
-
-MIT License - see LICENSE file for details.
-
----
-
-**Note**: This project is for educational purposes only.
+### Backend
+- Python
+- MongoDB with Beanie ODM
+- NLTK & scikit-learn
+- Node.js server
