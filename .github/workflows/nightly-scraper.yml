@@ -48,3 +48,8 @@ jobs:
         POSTAL_CODES: 'N2G4G7,M5R2E3,N2L3G1,K7L3N6'
         
       run: python "Data Collection/scraper.py"
+
+    - name: Clean up expired items
+      env:
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      run: python "Data Collection/cleanup_expired.py" --force
