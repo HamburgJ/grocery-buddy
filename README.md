@@ -36,3 +36,4 @@ A smart grocery deal finder that helps Canadians compare prices across multiple 
 - MongoDB with Beanie ODM
 - NLTK & scikit-learn
 - Node.js server
+  
